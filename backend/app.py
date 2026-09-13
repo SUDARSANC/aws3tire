@@ -803,6 +803,317 @@ def submit_rating():
 
 
 # =========================================================
+# ADMIN API
+# =========================================================
+
+def admin_required():
+    role = request.headers.get("X-Admin-Role")
+    return role == "admin"
+
+
+@app.route("/admin/login", methods=["POST"])
+def admin_login():
+    try:
+        data = request.get_json()
+
+        email = data.get("email", "").strip()
+        password = data.get("password", "")
+
+        db = get_db_connection()
+        cursor = db.cursor(dictionary=True)
+
+        cursor.execute(
+            "SELECT id, name, email, password, role FROM users WHERE email=%s",
+            (email,)
+        )
+
+        user = cursor.fetchone()
+
+        cursor.close()
+        db.close()
+
+        if not user:
+            return jsonify({
+                "success": False,
+                "message": "Invalid admin login"
+            }), 401
+
+        if user["role"] != "admin":
+            return jsonify({
+                "success": False,
+                "message": "Admin access required"
+            }), 403
+
+        if not check_password_hash(user["password"], password):
+            return jsonify({
+                "success": False,
+                "message": "Invalid admin login"
+            }), 401
+
+        return jsonify({
+            "success": True,
+            "message": "Admin login successful",
+            "admin": {
+                "id": user["id"],
+                "name": user["name"],
+                "email": user["email"],
+                "role": user["role"]
+            }
+        })
+
+    except Exception as e:
+        print("ADMIN LOGIN ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": "Admin login failed",
+            "error": str(e)
+        }), 500
+
+
+@app.route("/admin/stats", methods=["GET"])
+def admin_stats():
+
+    if not admin_required():
+        return jsonify({
+            "success": False,
+            "message": "Admin access required"
+        }), 403
+
+    try:
+        db = get_db_connection()
+        cursor = db.cursor(dictionary=True)
+
+        cursor.execute("SELECT COUNT(*) AS total_users FROM users")
+        total_users = cursor.fetchone()["total_users"]
+
+        cursor.execute("SELECT COUNT(*) AS total_orders FROM orders")
+        total_orders = cursor.fetchone()["total_orders"]
+
+        cursor.execute("SELECT COUNT(*) AS total_foods FROM foods")
+        total_foods = cursor.fetchone()["total_foods"]
+
+        cursor.execute(
+            "SELECT COALESCE(SUM(total), 0) AS total_sales FROM orders"
+        )
+        total_sales = cursor.fetchone()["total_sales"]
+
+        cursor.execute(
+            "SELECT COUNT(*) AS pending_orders FROM orders WHERE status='Pending'"
+        )
+        pending_orders = cursor.fetchone()["pending_orders"]
+
+        cursor.close()
+        db.close()
+
+        return jsonify({
+            "success": True,
+            "stats": {
+                "total_users": total_users,
+                "total_orders": total_orders,
+                "total_foods": total_foods,
+                "total_sales": float(total_sales),
+                "pending_orders": pending_orders
+            }
+        })
+
+    except Exception as e:
+        print("ADMIN STATS ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": "Failed to load statistics",
+            "error": str(e)
+        }), 500
+
+
+@app.route("/admin/users", methods=["GET"])
+def admin_users():
+
+    if not admin_required():
+        return jsonify({
+            "success": False,
+            "message": "Admin access required"
+        }), 403
+
+    try:
+        db = get_db_connection()
+        cursor = db.cursor(dictionary=True)
+
+        cursor.execute(
+            "SELECT id, name, email, role FROM users ORDER BY id DESC"
+        )
+
+        users = cursor.fetchall()
+
+        cursor.close()
+        db.close()
+
+        return jsonify({
+            "success": True,
+            "users": users
+        })
+
+    except Exception as e:
+        print("ADMIN USERS ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": "Failed to load users",
+            "error": str(e)
+        }), 500
+
+
+@app.route("/admin/orders", methods=["GET"])
+def admin_orders():
+
+    if not admin_required():
+        return jsonify({
+            "success": False,
+            "message": "Admin access required"
+        }), 403
+
+    try:
+        db = get_db_connection()
+        cursor = db.cursor(dictionary=True)
+
+        cursor.execute(
+            """
+            SELECT id, items, total, customer_email,
+                   customer_name, phone, address,
+                   payment_method, status, created_at
+            FROM orders
+            ORDER BY id DESC
+            """
+        )
+
+        orders = cursor.fetchall()
+
+        cursor.close()
+        db.close()
+
+        for order in orders:
+            if order.get("total") is not None:
+                order["total"] = float(order["total"])
+
+        return jsonify({
+            "success": True,
+            "orders": orders
+        })
+
+    except Exception as e:
+        print("ADMIN ORDERS ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": "Failed to load orders",
+            "error": str(e)
+        }), 500
+
+
+@app.route("/admin/orders/<int:order_id>/status", methods=["PUT"])
+def admin_update_order_status(order_id):
+
+    if not admin_required():
+        return jsonify({
+            "success": False,
+            "message": "Admin access required"
+        }), 403
+
+    try:
+        data = request.get_json()
+
+        status = data.get("status", "").strip()
+
+        allowed_statuses = [
+            "Pending",
+            "Confirmed",
+            "Preparing",
+            "Out for Delivery",
+            "Delivered",
+            "Cancelled"
+        ]
+
+        if status not in allowed_statuses:
+            return jsonify({
+                "success": False,
+                "message": "Invalid order status"
+            }), 400
+
+        db = get_db_connection()
+        cursor = db.cursor()
+
+        cursor.execute(
+            "UPDATE orders SET status=%s WHERE id=%s",
+            (status, order_id)
+        )
+
+        db.commit()
+
+        cursor.close()
+        db.close()
+
+        return jsonify({
+            "success": True,
+            "message": "Order status updated"
+        })
+
+    except Exception as e:
+        print("ADMIN ORDER STATUS ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": "Failed to update order status",
+            "error": str(e)
+        }), 500
+
+
+@app.route("/admin/foods", methods=["GET"])
+def admin_foods():
+
+    if not admin_required():
+        return jsonify({
+            "success": False,
+            "message": "Admin access required"
+        }), 403
+
+    try:
+        db = get_db_connection()
+        cursor = db.cursor(dictionary=True)
+
+        cursor.execute(
+            """
+            SELECT id, name, description, price,
+                   category, image, is_available
+            FROM foods
+            ORDER BY id DESC
+            """
+        )
+
+        foods = cursor.fetchall()
+
+        cursor.close()
+        db.close()
+
+        for food in foods:
+            if food.get("price") is not None:
+                food["price"] = float(food["price"])
+
+        return jsonify({
+            "success": True,
+            "foods": foods
+        })
+
+    except Exception as e:
+        print("ADMIN FOODS ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": "Failed to load foods",
+            "error": str(e)
+        }), 500
+
+# =========================================================
 # RUN SERVER
 # =========================================================
 
