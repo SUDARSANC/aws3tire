@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+venv/
+*.tar
+*_backup*.py
+foodhub-frontend.zip
+*_backup*.html
+*_before_theme*.html

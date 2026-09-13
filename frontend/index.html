@@ -1,0 +1,4786 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>FoodHub - Online Food Ordering</title>
+
+<style>
+
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+font-family: Arial, Helvetica, sans-serif;
+background: #f7f7f7;
+color: #222;
+}
+
+button,
+input,
+textarea,
+select {
+font-family: inherit;
+}
+
+button {
+cursor: pointer;
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar {
+background: #111827;
+color: white;
+min-height: 70px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 5%;
+position: sticky;
+top: 0;
+z-index: 1000;
+}
+
+.logo {
+font-size: 27px;
+font-weight: bold;
+color: #ff5722;
+}
+
+.logo span {
+color: white;
+}
+
+.nav-links {
+display: flex;
+gap: 24px;
+align-items: center;
+}
+
+.nav-links a {
+color: white;
+text-decoration: none;
+font-size: 15px;
+cursor: pointer;
+}
+
+.nav-links a:hover {
+color: #ff5722;
+}
+
+.notification-nav {
+position: relative;
+display: flex;
+align-items: center;
+gap: 5px;
+}
+
+.notification-icon {
+font-size: 20px;
+}
+
+.notification-badge {
+background: #ff5722;
+color: white;
+min-width: 20px;
+height: 20px;
+padding: 2px 6px;
+border-radius: 20px;
+font-size: 11px;
+font-weight: bold;
+display: none;
+align-items: center;
+justify-content: center;
+position: relative;
+top: -8px;
+margin-left: -8px;
+}
+
+.notification-badge.show {
+display: inline-flex;
+}
+
+.cart-btn {
+background: #ff5722;
+border: none;
+color: white;
+padding: 10px 16px;
+border-radius: 25px;
+font-weight: bold;
+}
+
+.cart-count {
+background: white;
+color: #ff5722;
+border-radius: 50%;
+padding: 2px 7px;
+margin-left: 4px;
+}
+
+.mobile-menu {
+display: none;
+font-size: 25px;
+}
+
+/* ================= HERO ================= */
+
+.hero {
+min-height: 450px;
+
+background:
+linear-gradient(rgba(0,0,0,.58), rgba(0,0,0,.58)),
+url("https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_400/RX_THUMBNAIL/IMAGES/VENDOR/2026/3/24/cf8c9b1d-c4dd-4d4e-b4c5-af2e2472ec57_4138.jpg")
+center/cover;
+
+display: flex;
+align-items: center;
+justify-content: center;
+text-align: center;
+
+color: white;
+padding: 40px 20px;
+}
+
+.hero-content {
+max-width: 750px;
+}
+
+.hero h1 {
+font-size: 55px;
+margin-bottom: 18px;
+}
+
+.hero h1 span {
+color: #ff5722;
+}
+
+.hero p {
+font-size: 20px;
+margin-bottom: 28px;
+}
+
+.hero-btn {
+background: #ff5722;
+border: none;
+color: white;
+padding: 15px 28px;
+border-radius: 30px;
+font-size: 17px;
+font-weight: bold;
+}
+
+/* ================= SECTIONS ================= */
+
+.section {
+max-width: 1250px;
+margin: auto;
+padding: 55px 20px;
+}
+
+.section-title {
+text-align: center;
+font-size: 32px;
+margin-bottom: 10px;
+}
+
+.section-subtitle {
+text-align: center;
+color: #777;
+margin-bottom: 30px;
+}
+
+/* ================= SEARCH ================= */
+
+.search-box {
+max-width: 650px;
+margin: 0 auto 25px;
+display: flex;
+}
+
+.search-box input {
+width: 100%;
+padding: 15px 20px;
+border: 1px solid #ddd;
+border-radius: 30px;
+font-size: 16px;
+outline: none;
+}
+
+/* ================= FILTER ================= */
+
+.filters {
+display: flex;
+justify-content: center;
+gap: 12px;
+flex-wrap: wrap;
+margin-bottom: 35px;
+}
+
+.filter-btn {
+padding: 11px 22px;
+border-radius: 25px;
+border: 1px solid #ddd;
+background: white;
+font-weight: bold;
+}
+
+.filter-btn.active {
+background: #ff5722;
+color: white;
+border-color: #ff5722;
+}
+
+.veg-dot,
+.nonveg-dot {
+display: inline-block;
+width: 10px;
+height: 10px;
+border-radius: 50%;
+margin-right: 5px;
+}
+
+.veg-dot {
+background: green;
+}
+
+.nonveg-dot {
+background: red;
+}
+
+/* ================= FOOD GRID ================= */
+
+.food-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 25px;
+}
+
+.food-card {
+background: white;
+border-radius: 16px;
+overflow: hidden;
+box-shadow: 0 5px 20px rgba(0,0,0,.08);
+transition: .25s;
+}
+
+.food-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 28px rgba(0,0,0,.14);
+}
+
+.food-image {
+width: 100%;
+height: 210px;
+object-fit: cover;
+}
+
+.food-body {
+padding: 18px;
+}
+
+.food-name {
+font-size: 19px;
+font-weight: bold;
+margin-bottom: 8px;
+}
+
+.food-description {
+color: #777;
+font-size: 13px;
+line-height: 1.5;
+min-height: 40px;
+}
+
+.food-type {
+display: inline-block;
+margin: 10px 0;
+padding: 5px 9px;
+border-radius: 5px;
+font-size: 11px;
+font-weight: bold;
+}
+
+.veg {
+background: #e7f7e7;
+color: green;
+}
+
+.nonveg {
+background: #ffe9e5;
+color: red;
+}
+
+.food-bottom {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.food-price {
+font-size: 21px;
+font-weight: bold;
+color: #ff5722;
+}
+
+.add-btn {
+border: none;
+background: #ff5722;
+color: white;
+padding: 9px 15px;
+border-radius: 20px;
+font-weight: bold;
+}
+
+.add-btn:hover {
+background: #e64a19;
+}
+
+/* ================= LOADING ================= */
+
+.loading {
+text-align: center;
+padding: 50px;
+color: #777;
+}
+
+.empty {
+text-align: center;
+padding: 50px;
+color: #777;
+grid-column: 1 / -1;
+}
+
+/* ================= CART ================= */
+
+.cart-panel {
+position: fixed;
+top: 0;
+right: -450px;
+width: 430px;
+max-width: 95%;
+height: 100%;
+background: white;
+z-index: 3000;
+box-shadow: -5px 0 25px rgba(0,0,0,.2);
+transition: .3s;
+display: flex;
+flex-direction: column;
+}
+
+.cart-panel.open {
+right: 0;
+}
+
+.cart-header {
+padding: 20px;
+background: #111827;
+color: white;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.close-btn {
+background: none;
+border: none;
+color: white;
+font-size: 25px;
+}
+
+.cart-items {
+flex: 1;
+overflow-y: auto;
+padding: 20px;
+}
+
+.cart-item {
+display: flex;
+gap: 12px;
+border-bottom: 1px solid #eee;
+padding: 15px 0;
+}
+
+.cart-item img {
+width: 70px;
+height: 70px;
+object-fit: cover;
+border-radius: 8px;
+}
+
+.cart-item-info {
+flex: 1;
+}
+
+.cart-item-name {
+font-weight: bold;
+}
+
+.cart-item-price {
+color: #ff5722;
+margin-top: 5px;
+}
+
+.quantity {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-top: 8px;
+}
+
+.quantity button {
+width: 25px;
+height: 25px;
+border: 1px solid #ddd;
+background: white;
+border-radius: 5px;
+}
+
+.remove-item {
+color: red;
+background: none;
+border: none;
+font-size: 12px;
+margin-top: 6px;
+}
+
+.cart-footer {
+padding: 20px;
+border-top: 1px solid #ddd;
+}
+
+.cart-total {
+display: flex;
+justify-content: space-between;
+font-size: 21px;
+font-weight: bold;
+margin-bottom: 15px;
+}
+
+.checkout-btn {
+width: 100%;
+padding: 14px;
+background: #ff5722;
+color: white;
+border: none;
+border-radius: 8px;
+font-weight: bold;
+}
+
+/* ================= OVERLAY ================= */
+
+.overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,.55);
+z-index: 2500;
+}
+
+.overlay.show {
+display: block;
+}
+
+/* ================= MODALS ================= */
+
+.modal {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,.6);
+z-index: 4000;
+align-items: center;
+justify-content: center;
+padding: 20px;
+}
+
+.modal.show {
+display: flex;
+}
+
+.modal-box {
+background: white;
+width: 520px;
+max-width: 100%;
+max-height: 90vh;
+overflow-y: auto;
+border-radius: 15px;
+padding: 28px;
+}
+
+.modal-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 20px;
+}
+
+.modal-close {
+border: none;
+background: none;
+font-size: 25px;
+}
+
+.form-group {
+margin-bottom: 15px;
+}
+
+.form-group label {
+display: block;
+font-weight: bold;
+margin-bottom: 7px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+width: 100%;
+padding: 12px;
+border: 1px solid #ddd;
+border-radius: 7px;
+outline: none;
+}
+
+.form-group textarea {
+min-height: 90px;
+resize: vertical;
+}
+
+.primary-btn,
+.secondary-btn,
+.danger-btn {
+width: 100%;
+padding: 13px;
+border: none;
+border-radius: 7px;
+font-weight: bold;
+}
+
+.primary-btn {
+background: #ff5722;
+color: white;
+}
+
+.secondary-btn {
+background: #111827;
+color: white;
+margin-top: 10px;
+}
+
+.danger-btn {
+background: #dc2626;
+color: white;
+margin-top: 10px;
+}
+
+.message {
+padding: 10px;
+border-radius: 6px;
+margin-bottom: 15px;
+display: none;
+}
+
+.message.success {
+background: #e7f7e7;
+color: green;
+display: block;
+}
+
+.message.error {
+background: #ffe9e5;
+color: red;
+display: block;
+}
+
+/* ================= AUTH ================= */
+
+.auth-tabs {
+display: flex;
+margin-bottom: 20px;
+}
+
+.auth-tab {
+flex: 1;
+padding: 12px;
+border: none;
+background: #eee;
+}
+
+.auth-tab.active {
+background: #ff5722;
+color: white;
+}
+
+.auth-form {
+display: none;
+}
+
+.auth-form.active {
+display: block;
+}
+
+/* ================= ORDERS ================= */
+
+.order-card {
+background: white;
+border-radius: 12px;
+padding: 18px;
+margin-bottom: 15px;
+box-shadow: 0 3px 12px rgba(0,0,0,.07);
+}
+
+.order-top {
+display: flex;
+justify-content: space-between;
+gap: 10px;
+margin-bottom: 10px;
+}
+
+.order-id {
+font-weight: bold;
+}
+
+.order-details {
+line-height: 1.8;
+}
+
+.status {
+padding: 6px 10px;
+border-radius: 20px;
+font-size: 12px;
+font-weight: bold;
+white-space: nowrap;
+}
+
+.status-pending {
+background: #fff3cd;
+color: #856404;
+}
+
+.status-accepted {
+background: #dbeafe;
+color: #1d4ed8;
+}
+
+.status-preparing {
+background: #ffedd5;
+color: #c2410c;
+}
+
+.status-ready {
+background: #dcfce7;
+color: #15803d;
+}
+
+.status-delivered {
+background: #d1fae5;
+color: #047857;
+}
+
+.status-cancelled {
+background: #fee2e2;
+color: #b91c1c;
+}
+
+/* ================= NOTIFICATIONS ================= */
+
+.notification {
+background: white;
+border-radius: 12px;
+padding: 18px;
+margin-bottom: 15px;
+box-shadow: 0 3px 12px rgba(0,0,0,.07);
+}
+
+.notification.unread {
+border-left: 5px solid #ff5722;
+background: #fff8f5;
+}
+
+.notification-time {
+font-size: 12px;
+color: #999;
+margin-top: 8px;
+}
+
+.read-btn {
+margin-top: 12px;
+border: none;
+background: #111827;
+color: white;
+padding: 8px 12px;
+border-radius: 6px;
+font-size: 12px;
+}
+
+/* ================= LIVE NOTIFICATION ================= */
+
+.live-notification {
+position: fixed;
+top: 85px;
+right: 25px;
+width: 360px;
+max-width: calc(100% - 30px);
+background: white;
+border-radius: 14px;
+padding: 18px;
+z-index: 6000;
+box-shadow: 0 10px 35px rgba(0,0,0,.25);
+border-left: 5px solid #ff5722;
+transform: translateX(450px);
+transition: .35s ease;
+}
+
+.live-notification.show {
+transform: translateX(0);
+}
+
+.live-notification-title {
+font-weight: bold;
+font-size: 17px;
+margin-bottom: 8px;
+}
+
+.live-notification-message {
+color: #555;
+line-height: 1.5;
+}
+
+.live-notification-close {
+position: absolute;
+right: 12px;
+top: 8px;
+border: none;
+background: none;
+font-size: 22px;
+}
+
+.live-notification-time {
+font-size: 12px;
+color: #999;
+margin-top: 8px;
+}
+
+/* ================= PROFILE ================= */
+
+.profile-box {
+max-width: 600px;
+margin: auto;
+background: white;
+padding: 30px;
+border-radius: 15px;
+box-shadow: 0 4px 20px rgba(0,0,0,.07);
+}
+
+.profile-row {
+padding: 15px 0;
+border-bottom: 1px solid #eee;
+}
+
+.profile-label {
+color: #888;
+font-size: 13px;
+}
+
+.profile-value {
+font-weight: bold;
+margin-top: 4px;
+}
+
+/* ================= CONTACT ================= */
+
+.contact-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 30px;
+}
+
+.contact-card {
+background: white;
+padding: 30px;
+border-radius: 15px;
+box-shadow: 0 4px 20px rgba(0,0,0,.07);
+}
+
+/* ================= FOOTER ================= */
+
+footer {
+background: #111827;
+color: white;
+text-align: center;
+padding: 35px 20px;
+margin-top: 50px;
+}
+
+footer h2 {
+color: #ff5722;
+margin-bottom: 10px;
+}
+
+/* ================= TOAST ================= */
+
+.toast {
+position: fixed;
+right: 20px;
+bottom: 20px;
+background: #111827;
+color: white;
+padding: 15px 20px;
+border-radius: 8px;
+z-index: 5000;
+display: none;
+}
+
+.toast.show {
+display: block;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1000px) {
+.food-grid {
+grid-template-columns: repeat(3, 1fr);
+}
+}
+
+@media (max-width: 750px) {
+
+.nav-links {
+display: none;
+}
+
+.mobile-menu {
+display: block;
+}
+
+.hero h1 {
+font-size: 38px;
+}
+
+.food-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+
+.contact-grid {
+grid-template-columns: 1fr;
+}
+}
+
+@media (max-width: 500px) {
+
+.food-grid {
+grid-template-columns: 1fr;
+}
+
+.hero h1 {
+font-size: 32px;
+}
+
+.section {
+padding: 40px 15px;
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar">
+
+<div class="logo">
+Food<span>Hub</span>
+</div>
+
+<div class="nav-links">
+
+<a onclick="scrollToSection('home')">
+Home
+</a>
+
+<a onclick="scrollToSection('menu')">
+Menu
+</a>
+
+<a onclick="showOrders()">
+Orders
+</a>
+
+<a class="notification-nav"
+onclick="showNotifications()">
+
+<span class="notification-icon">🔔</span>
+
+<span class="notification-badge"
+id="notificationBadge">
+0
+</span>
+
+Notifications
+
+</a>
+
+<a onclick="showProfile()">
+Profile
+</a>
+
+<a id="loginNav"
+onclick="openLogin()">
+Login
+</a>
+
+<button class="cart-btn"
+onclick="openCart()">
+
+🛒 Cart
+
+<span class="cart-count"
+id="cartCount">
+0
+</span>
+
+</button>
+
+</div>
+
+<div class="mobile-menu"
+onclick="toggleMobileMenu()">
+☰
+</div>
+
+</nav>
+
+<!-- ================= LIVE NOTIFICATION ================= -->
+
+<div id="liveNotification"
+class="live-notification">
+
+<button class="live-notification-close"
+onclick="closeLiveNotification()">
+×
+</button>
+
+<div class="live-notification-title">
+🔔 New Order Update
+</div>
+
+<div id="liveNotificationMessage"
+class="live-notification-message">
+</div>
+
+<div id="liveNotificationTime"
+class="live-notification-time">
+</div>
+
+</div>
+
+<!-- ================= HERO ================= -->
+
+<section class="hero" id="home">
+
+<div class="hero-content">
+
+<h1>
+Delicious Food,
+<span>Delivered Fast</span>
+</h1>
+
+<p>
+Fresh ingredients • Amazing taste • Fast delivery
+</p>
+
+<button class="hero-btn"
+onclick="scrollToSection('menu')">
+
+Order Now 🍔
+
+</button>
+
+</div>
+
+</section>
+
+<!-- ================= MENU ================= -->
+
+<section class="section" id="menu">
+
+<h2 class="section-title">
+Our Menu
+</h2>
+
+<p class="section-subtitle">
+Choose your favourite food
+</p>
+
+<div class="search-box">
+
+<input
+type="text"
+id="searchInput"
+placeholder="Search food..."
+oninput="filterFoods()"
+>
+
+</div>
+
+<div class="filters">
+
+<button class="filter-btn active"
+onclick="setCategory('All', this)">
+All
+</button>
+
+<button class="filter-btn"
+onclick="setCategory('Veg', this)">
+🟢 Veg
+</button>
+
+<button class="filter-btn"
+onclick="setCategory('Non-Veg', this)">
+🔴 Non-Veg
+</button>
+
+<button class="filter-btn"
+onclick="setCategory('Biryani', this)">
+🍚 Biryani
+</button>
+
+<button class="filter-btn"
+onclick="setCategory('Pizza', this)">
+🍕 Pizza
+</button>
+
+<button class="filter-btn"
+onclick="setCategory('Burger', this)">
+🍔 Burger
+</button>
+
+<button class="filter-btn"
+onclick="setCategory('Starters', this)">
+🍗 Starters
+</button>
+
+<button class="filter-btn"
+onclick="setCategory('Drinks', this)">
+🥤 Drinks
+</button>
+
+</div>
+
+<div id="foodGrid"
+class="food-grid">
+
+<div class="loading">
+Loading delicious food...
+</div>
+
+</div>
+
+</section>
+
+<!-- ================= ORDERS ================= -->
+
+<section class="section"
+id="ordersSection"
+style="display:none;">
+
+<h2 class="section-title">
+My Orders
+</h2>
+
+<p class="section-subtitle">
+Track your orders
+</p>
+
+<div id="ordersList"></div>
+
+</section>
+
+<!-- ================= NOTIFICATIONS ================= -->
+
+<section class="section"
+id="notificationsSection"
+style="display:none;">
+
+<h2 class="section-title">
+Notifications 🔔
+</h2>
+
+<p class="section-subtitle">
+Order updates from FoodHub
+</p>
+
+<div id="notificationsList"></div>
+
+</section>
+
+<!-- ================= PROFILE ================= -->
+
+<section class="section"
+id="profileSection"
+style="display:none;">
+
+<h2 class="section-title">
+My Profile
+</h2>
+
+<div class="profile-box"
+id="profileBox">
+</div>
+
+</section>
+
+<!-- ================= CONTACT ================= -->
+
+<section class="section">
+
+<h2 class="section-title">
+Contact Us
+</h2>
+
+<p class="section-subtitle">
+We would love to hear from you
+</p>
+
+<div class="contact-grid">
+
+<div class="contact-card">
+
+<h2>FoodHub</h2>
+
+<br>
+
+<p>
+🍔 Delicious food delivered to your doorstep.
+</p>
+
+<br>
+
+<p>📞 +91 98765 43210</p>
+
+<p>📧 support@foodhub.com</p>
+
+<p>📍 Coimbatore, Tamil Nadu</p>
+
+</div>
+
+<div class="contact-card">
+
+<h3>Send us a message</h3>
+
+<br>
+
+<form onsubmit="submitContact(event)">
+
+<div class="form-group">
+
+<input
+type="text"
+id="contactName"
+placeholder="Your name"
+required>
+
+</div>
+
+<div class="form-group">
+
+<input
+type="email"
+id="contactEmail"
+placeholder="Your email"
+required>
+
+</div>
+
+<div class="form-group">
+
+<textarea
+id="contactMessage"
+placeholder="Your message"
+required></textarea>
+
+</div>
+
+<button class="primary-btn">
+Send Message
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+<h2>FoodHub</h2>
+
+<p>
+Fresh Food • Fast Delivery • Great Taste
+</p>
+
+<br>
+
+<p>
+© 2026 FoodHub. All Rights Reserved.
+</p>
+
+</footer>
+
+<!-- ================= CART ================= -->
+
+<div class="overlay"
+id="cartOverlay"
+onclick="closeCart()">
+</div>
+
+<div class="cart-panel"
+id="cartPanel">
+
+<div class="cart-header">
+
+<h2>Your Cart</h2>
+
+<button class="close-btn"
+onclick="closeCart()">
+×
+</button>
+
+</div>
+
+<div class="cart-items"
+id="cartItems">
+</div>
+
+<div class="cart-footer">
+
+<div class="cart-total">
+
+<span>Total</span>
+
+<span id="cartTotal">
+₹0
+</span>
+
+</div>
+
+<button class="checkout-btn"
+onclick="openCheckout()">
+
+Proceed to Checkout
+
+</button>
+
+</div>
+
+</div>
+
+<!-- ================= LOGIN ================= -->
+
+<div class="modal"
+id="loginModal">
+
+<div class="modal-box">
+
+<div class="modal-header">
+
+<h2>
+Welcome to FoodHub
+</h2>
+
+<button class="modal-close"
+onclick="closeModal('loginModal')">
+×
+</button>
+
+</div>
+
+<div id="authMessage"
+class="message">
+</div>
+
+<div class="auth-tabs">
+
+<button class="auth-tab active"
+id="loginTab"
+onclick="switchAuth('login')">
+Login
+</button>
+
+<button class="auth-tab"
+id="signupTab"
+onclick="switchAuth('signup')">
+Sign Up
+</button>
+
+</div>
+
+<form id="loginForm"
+class="auth-form active"
+onsubmit="login(event)">
+
+<div class="form-group">
+
+<label>Email</label>
+
+<input type="email"
+id="loginEmail"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Password</label>
+
+<input type="password"
+id="loginPassword"
+required>
+
+</div>
+
+<button class="primary-btn">
+Login
+</button>
+
+</form>
+
+<form id="signupForm"
+class="auth-form"
+onsubmit="signup(event)">
+
+<div class="form-group">
+
+<label>Name</label>
+
+<input type="text"
+id="signupName"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Email</label>
+
+<input type="email"
+id="signupEmail"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Password</label>
+
+<input type="password"
+id="signupPassword"
+minlength="6"
+required>
+
+</div>
+
+<button class="primary-btn">
+Create Account
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+<!-- ================= CHECKOUT ================= -->
+
+<div class="modal"
+id="checkoutModal">
+
+<div class="modal-box">
+
+<div class="modal-header">
+
+<h2>Checkout</h2>
+
+<button class="modal-close"
+onclick="closeModal('checkoutModal')">
+×
+</button>
+
+</div>
+
+<div id="checkoutMessage"
+class="message">
+</div>
+
+<form onsubmit="placeOrder(event)">
+
+<div class="form-group">
+
+<label>Customer Name</label>
+
+<input type="text"
+id="customerName"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Phone Number</label>
+
+<input type="tel"
+id="customerPhone"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Delivery Address</label>
+
+<textarea id="customerAddress"
+required></textarea>
+
+</div>
+
+<div class="form-group">
+
+<label>Payment Method</label>
+
+<select id="paymentMethod"
+required>
+
+<option value="">
+Select Payment
+</option>
+
+<option value="Cash on Delivery">
+Cash on Delivery
+</option>
+
+<option value="UPI">
+UPI
+</option>
+
+<option value="Card">
+Card
+</option>
+
+</select>
+
+</div>
+
+<div class="cart-total">
+
+<span>Total</span>
+
+<span id="checkoutTotal">
+₹0
+</span>
+
+</div>
+
+<button class="primary-btn">
+Place Order
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+<!-- ================= RATING ================= -->
+
+<div class="modal"
+id="ratingModal">
+
+<div class="modal-box">
+
+<div class="modal-header">
+
+<h2>Rate FoodHub</h2>
+
+<button class="modal-close"
+onclick="closeModal('ratingModal')">
+×
+</button>
+
+</div>
+
+<form onsubmit="submitRating(event)">
+
+<div class="form-group">
+
+<label>Rating</label>
+
+<select id="ratingValue"
+required>
+
+<option value="">
+Select Rating
+</option>
+
+<option value="5">
+⭐⭐⭐⭐⭐ Excellent
+</option>
+
+<option value="4">
+⭐⭐⭐⭐ Very Good
+</option>
+
+<option value="3">
+⭐⭐⭐ Good
+</option>
+
+<option value="2">
+⭐⭐ Needs Improvement
+</option>
+
+<option value="1">
+⭐ Poor
+</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Comment</label>
+
+<textarea
+id="ratingComment"
+placeholder="Tell us about your experience"></textarea>
+
+</div>
+
+<button class="primary-btn">
+Submit Rating
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+<!-- ================= TOAST ================= -->
+
+<div class="toast"
+id="toast">
+</div>
+
+<script>
+
+/* =========================================================
+IMPORTANT CONFIGURATION
+Uses the SAME public IP/hostname that opened this page.
+Backend must be available on NodePort 30050.
+========================================================= */
+
+const BACKEND_URL =
+window.location.protocol +
+"//" +
+window.location.hostname +
+":30050";
+
+
+/* =========================================================
+GLOBAL VARIABLES
+========================================================= */
+
+let foods = [];
+let filteredFoods = [];
+let cart = [];
+let currentCategory = "All";
+let currentUser = null;
+
+let notificationTimer = null;
+let lastNotificationIds = [];
+let firstNotificationCheck = true;
+
+function getFoodType(food) {
+    const name = String(food.name || "").toLowerCase();
+
+    if (
+        name === "veg biryani" ||
+        name === "margherita pizza" ||
+        name === "french fries" ||
+        name === "fresh lime juice"
+    ) {
+        return "Veg";
+    }
+
+    return "Non-Veg";
+}
+
+
+/* =========================================================
+API HELPER
+========================================================= */
+
+async function api(endpoint, options = {}) {
+
+const requestOptions = {
+...options,
+credentials: "include"
+};
+
+if (!requestOptions.headers) {
+requestOptions.headers = {};
+}
+
+if (
+requestOptions.body &&
+typeof requestOptions.body !== "string"
+) {
+
+requestOptions.headers["Content-Type"] =
+"application/json";
+
+requestOptions.body =
+JSON.stringify(requestOptions.body);
+
+}
+
+const url =
+BACKEND_URL + endpoint;
+
+console.log(
+"API REQUEST:",
+requestOptions.method || "GET",
+url
+);
+
+try {
+
+const response =
+await fetch(
+url,
+requestOptions
+);
+
+let data = {};
+
+const contentType =
+response.headers.get(
+"content-type"
+) || "";
+
+if (
+contentType.includes(
+"application/json"
+)
+) {
+
+try {
+
+data =
+await response.json();
+
+} catch (error) {
+
+data = {};
+
+}
+
+} else {
+
+const text =
+await response.text();
+
+data = {
+message: text
+};
+
+}
+
+console.log(
+"API RESPONSE:",
+response.status,
+data
+);
+
+return {
+ok: response.ok,
+status: response.status,
+data: data
+};
+
+} catch (error) {
+
+console.error(
+"API CONNECTION ERROR:",
+url,
+error
+);
+
+throw error;
+
+}
+
+}
+
+
+/* =========================================================
+SUCCESS CHECK
+========================================================= */
+
+function isSuccess(result) {
+
+if (!result || !result.ok) {
+return false;
+}
+
+const data =
+result.data || {};
+
+/*
+Accept normal Flask responses:
+{"success": true}
+{"status": "success"}
+{"user": {...}}
+{"foods": [...]}
+{"orders": [...]}
+*/
+
+if (
+data.success === true ||
+data.status === "success"
+) {
+return true;
+}
+
+if (
+result.status >= 200 &&
+result.status < 300
+) {
+
+if (
+data.error ||
+data.message === "Invalid credentials"
+) {
+return false;
+}
+
+return true;
+
+}
+
+return false;
+
+}
+
+
+/* =========================================================
+INITIAL LOAD
+========================================================= */
+
+document.addEventListener(
+"DOMContentLoaded",
+async function() {
+
+console.log(
+"FoodHub started"
+);
+
+console.log(
+"Frontend:",
+window.location.origin
+);
+
+console.log(
+"Backend:",
+BACKEND_URL
+);
+
+updateNavbar();
+
+updateCartCount();
+
+await loadFoods();
+
+await checkLogin();
+
+}
+);
+
+
+/* =========================================================
+LOAD FOODS
+========================================================= */
+
+async function loadFoods() {
+
+const grid =
+document.getElementById(
+"foodGrid"
+);
+
+grid.innerHTML = `
+<div class="loading">
+Loading delicious food...
+</div>
+`;
+
+try {
+
+const result =
+await api(
+"/foods"
+);
+
+if (!isSuccess(result)) {
+
+grid.innerHTML = `
+<div class="empty">
+Unable to load food menu.
+<br><br>
+Backend response:
+${escapeHtml(
+result.data.message ||
+result.data.error ||
+"Unknown error"
+)}
+</div>
+`;
+
+return;
+
+}
+
+foods =
+Array.isArray(
+result.data.foods
+)
+? result.data.foods
+: [];
+
+filteredFoods =
+[...foods];
+
+renderFoods();
+
+} catch (error) {
+
+console.error(
+"LOAD FOODS ERROR:",
+error
+);
+
+grid.innerHTML = `
+<div class="empty">
+Backend connection failed.
+<br><br>
+Backend:
+${escapeHtml(BACKEND_URL)}
+</div>
+`;
+
+}
+
+}
+
+
+/* =========================================================
+RENDER FOODS
+========================================================= */
+
+function renderFoods() {
+
+const grid =
+document.getElementById(
+"foodGrid"
+);
+
+grid.innerHTML = "";
+
+if (
+filteredFoods.length === 0
+) {
+
+grid.innerHTML = `
+<div class="empty">
+No food items found.
+</div>
+`;
+
+return;
+
+}
+
+filteredFoods.forEach(
+function(food) {
+
+const type = getFoodType(food);
+
+const typeClass =
+type.toLowerCase() ===
+"veg"
+? "veg"
+: "nonveg";
+
+const typeIcon =
+type.toLowerCase() ===
+"veg"
+? "🟢"
+: "🔴";
+
+const image =
+food.image ||
+"https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_400/RX_THUMBNAIL/IMAGES/VENDOR/2026/3/24/cf8c9b1d-c4dd-4d4e-b4c5-af2e2472ec57_4138.jpg";
+
+const card =
+document.createElement(
+"div"
+);
+
+card.className =
+"food-card";
+
+card.innerHTML = `
+
+<img
+class="food-image"
+src="${escapeHtml(image)}"
+alt="${escapeHtml(food.name || "Food")}"
+onerror="this.onerror=null;this.src='https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_400/RX_THUMBNAIL/IMAGES/VENDOR/2026/3/24/cf8c9b1d-c4dd-4d4e-b4c5-af2e2472ec57_4138.jpg';"
+>
+
+<div class="food-body">
+
+<div class="food-name">
+${escapeHtml(
+food.name || "Food"
+)}
+</div>
+
+<div class="food-description">
+${escapeHtml(
+food.description || ""
+)}
+</div>
+
+<span class="food-type ${typeClass}">
+${typeIcon}
+${escapeHtml(type)}
+</span>
+
+<div class="food-bottom">
+
+<div class="food-price">
+₹${Number(
+food.price || 0
+).toFixed(2)}
+</div>
+
+<button
+class="add-btn"
+onclick="addToCart(${Number(food.id)})">
+
++ Add
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+grid.appendChild(
+card
+);
+
+}
+);
+
+}
+
+
+/* =========================================================
+CATEGORY
+========================================================= */
+
+function setCategory(
+category,
+button
+) {
+
+currentCategory =
+category;
+
+document
+.querySelectorAll(
+".filter-btn"
+)
+.forEach(
+function(btn) {
+
+btn.classList.remove(
+"active"
+);
+
+}
+);
+
+if (button) {
+
+button.classList.add(
+"active"
+);
+
+}
+
+filterFoods();
+
+}
+
+
+/* =========================================================
+SEARCH
+========================================================= */
+
+function filterFoods() {
+
+const input =
+document.getElementById(
+"searchInput"
+);
+
+const search =
+input
+? input.value
+.toLowerCase()
+.trim()
+: "";
+
+filteredFoods =
+foods.filter(
+function(food) {
+
+const name =
+String(
+food.name || ""
+).toLowerCase();
+
+const description =
+String(
+food.description || ""
+).toLowerCase();
+
+const category =
+String(
+food.category || ""
+);
+
+const foodType = getFoodType(food);
+
+const matchesSearch =
+name.includes(search) ||
+description.includes(search);
+
+let matchesCategory =
+true;
+
+if (
+currentCategory === "Veg"
+) {
+
+matchesCategory =
+foodType.toLowerCase() ===
+"veg";
+
+} else if (
+currentCategory ===
+"Non-Veg"
+) {
+
+matchesCategory =
+foodType.toLowerCase() ===
+"non-veg";
+
+} else if (
+currentCategory !==
+"All"
+) {
+
+matchesCategory =
+category.toLowerCase() ===
+currentCategory.toLowerCase();
+
+}
+
+return (
+matchesSearch &&
+matchesCategory
+);
+
+}
+);
+
+renderFoods();
+
+}
+
+
+/* =========================================================
+CART
+========================================================= */
+
+function addToCart(foodId) {
+
+const food =
+foods.find(
+function(item) {
+
+return Number(item.id) ===
+Number(foodId);
+
+}
+);
+
+if (!food) {
+
+showToast(
+"Food item not found"
+);
+
+return;
+
+}
+
+const existing =
+cart.find(
+function(item) {
+
+return Number(item.id) ===
+Number(foodId);
+
+}
+);
+
+if (existing) {
+
+existing.quantity++;
+
+} else {
+
+cart.push({
+
+id:
+Number(food.id),
+
+name:
+food.name,
+
+price:
+Number(food.price || 0),
+
+image_url:
+food.image || "",
+
+quantity:
+1
+
+});
+
+}
+
+updateCartCount();
+
+renderCart();
+
+showToast(
+food.name +
+" added to cart"
+);
+
+}
+
+
+function increaseQuantity(id) {
+
+const item =
+cart.find(
+function(x) {
+
+return Number(x.id) ===
+Number(id);
+
+}
+);
+
+if (item) {
+item.quantity++;
+}
+
+renderCart();
+
+updateCartCount();
+
+}
+
+
+function decreaseQuantity(id) {
+
+const item =
+cart.find(
+function(x) {
+
+return Number(x.id) ===
+Number(id);
+
+}
+);
+
+if (!item) {
+return;
+}
+
+item.quantity--;
+
+if (item.quantity <= 0) {
+
+cart =
+cart.filter(
+function(x) {
+
+return Number(x.id) !==
+Number(id);
+
+}
+);
+
+}
+
+renderCart();
+
+updateCartCount();
+
+}
+
+
+function removeFromCart(id) {
+
+cart =
+cart.filter(
+function(x) {
+
+return Number(x.id) !==
+Number(id);
+
+}
+);
+
+renderCart();
+
+updateCartCount();
+
+}
+
+
+/* =========================================================
+CART TOTAL
+========================================================= */
+
+function getCartTotal() {
+
+return cart.reduce(
+function(total, item) {
+
+return total +
+(
+Number(item.price) *
+Number(item.quantity)
+);
+
+},
+0
+);
+
+}
+
+
+/* =========================================================
+CART COUNT
+========================================================= */
+
+function updateCartCount() {
+
+const count =
+cart.reduce(
+function(total, item) {
+
+return total +
+Number(item.quantity);
+
+},
+0
+);
+
+const element =
+document.getElementById(
+"cartCount"
+);
+
+if (element) {
+
+element.textContent =
+count;
+
+}
+
+}
+
+
+/* =========================================================
+RENDER CART
+========================================================= */
+
+function renderCart() {
+
+const container =
+document.getElementById(
+"cartItems"
+);
+
+if (!container) {
+return;
+}
+
+container.innerHTML = "";
+
+if (
+cart.length === 0
+) {
+
+container.innerHTML = `
+<div class="empty">
+Your cart is empty 🛒
+</div>
+`;
+
+} else {
+
+cart.forEach(
+function(item) {
+
+const row =
+document.createElement(
+"div"
+);
+
+row.className =
+"cart-item";
+
+row.innerHTML = `
+
+<img
+src="${escapeHtml(
+item.image_url || ""
+)}"
+onerror="this.style.display='none'"
+alt=""
+>
+
+<div class="cart-item-info">
+
+<div class="cart-item-name">
+${escapeHtml(item.name)}
+</div>
+
+<div class="cart-item-price">
+₹${Number(item.price).toFixed(2)}
+</div>
+
+<div class="quantity">
+
+<button
+onclick="decreaseQuantity(${Number(item.id)})">
+−
+</button>
+
+<span>
+${Number(item.quantity)}
+</span>
+
+<button
+onclick="increaseQuantity(${Number(item.id)})">
++
+</button>
+
+</div>
+
+<button
+class="remove-item"
+onclick="removeFromCart(${Number(item.id)})">
+
+Remove
+
+</button>
+
+</div>
+
+`;
+
+container.appendChild(
+row
+);
+
+}
+);
+
+}
+
+const total =
+getCartTotal();
+
+document.getElementById(
+"cartTotal"
+).textContent =
+"₹" +
+total.toFixed(2);
+
+document.getElementById(
+"checkoutTotal"
+).textContent =
+"₹" +
+total.toFixed(2);
+
+}
+
+
+/* =========================================================
+CART OPEN/CLOSE
+========================================================= */
+
+function openCart() {
+
+renderCart();
+
+document
+.getElementById(
+"cartPanel"
+)
+.classList.add(
+"open"
+);
+
+document
+.getElementById(
+"cartOverlay"
+)
+.classList.add(
+"show"
+);
+
+}
+
+
+function closeCart() {
+
+document
+.getElementById(
+"cartPanel"
+)
+.classList.remove(
+"open"
+);
+
+document
+.getElementById(
+"cartOverlay"
+)
+.classList.remove(
+"show"
+);
+
+}
+
+
+/* =========================================================
+CHECKOUT
+========================================================= */
+
+function openCheckout() {
+
+if (
+cart.length === 0
+) {
+
+showToast(
+"Your cart is empty"
+);
+
+return;
+
+}
+
+if (!currentUser) {
+
+closeCart();
+
+openLogin();
+
+showToast(
+"Please login before placing an order"
+);
+
+return;
+
+}
+
+document.getElementById(
+"customerName"
+).value =
+currentUser.name || "";
+
+document.getElementById(
+"customerPhone"
+).value = "";
+
+document.getElementById(
+"customerAddress"
+).value = "";
+
+document.getElementById(
+"paymentMethod"
+).value = "";
+
+document.getElementById(
+"checkoutTotal"
+).textContent =
+"₹" +
+getCartTotal().toFixed(2);
+
+closeCart();
+
+openModal(
+"checkoutModal"
+);
+
+}
+
+
+async function placeOrder(event) {
+
+event.preventDefault();
+
+if (!currentUser) {
+
+closeModal(
+"checkoutModal"
+);
+
+openLogin();
+
+return;
+
+}
+
+if (
+cart.length === 0
+) {
+
+showCheckoutMessage(
+"Your cart is empty",
+"error"
+);
+
+return;
+
+}
+
+const name =
+document.getElementById(
+"customerName"
+).value.trim();
+
+const phone =
+document.getElementById(
+"customerPhone"
+).value.trim();
+
+const address =
+document.getElementById(
+"customerAddress"
+).value.trim();
+
+const payment =
+document.getElementById(
+"paymentMethod"
+).value;
+
+const items =
+cart.map(
+function(item) {
+
+return {
+
+name:
+item.name,
+
+price:
+Number(item.price),
+
+quantity:
+Number(item.quantity)
+
+};
+
+}
+);
+
+const total =
+getCartTotal();
+
+try {
+
+const result =
+await api(
+"/order",
+{
+method: "POST",
+
+body: {
+
+items:
+items,
+
+total:
+total,
+
+customer_name:
+name,
+
+customer_email:
+currentUser.email,
+
+phone:
+phone,
+
+address:
+address,
+
+payment_method:
+payment
+
+}
+
+}
+);
+
+if (!isSuccess(result)) {
+
+showCheckoutMessage(
+result.data.message ||
+result.data.error ||
+"Unable to place order",
+"error"
+);
+
+return;
+
+}
+
+cart = [];
+
+updateCartCount();
+
+renderCart();
+
+closeModal(
+"checkoutModal"
+);
+
+showToast(
+"Order placed successfully! 🎉"
+);
+
+await showOrders();
+
+scrollToSection(
+"ordersSection"
+);
+
+} catch (error) {
+
+console.error(
+"ORDER ERROR:",
+error
+);
+
+showCheckoutMessage(
+"Backend connection failed",
+"error"
+);
+
+}
+
+}
+
+
+function showCheckoutMessage(
+text,
+type
+) {
+
+const element =
+document.getElementById(
+"checkoutMessage"
+);
+
+element.textContent =
+text;
+
+element.className =
+"message " +
+type;
+
+}
+
+
+/* =========================================================
+LOGIN
+========================================================= */
+
+function openLogin() {
+
+openModal(
+"loginModal"
+);
+
+switchAuth(
+"login"
+);
+
+}
+
+
+function switchAuth(type) {
+
+const loginForm =
+document.getElementById(
+"loginForm"
+);
+
+const signupForm =
+document.getElementById(
+"signupForm"
+);
+
+const loginTab =
+document.getElementById(
+"loginTab"
+);
+
+const signupTab =
+document.getElementById(
+"signupTab"
+);
+
+if (
+type === "login"
+) {
+
+loginForm.classList.add(
+"active"
+);
+
+signupForm.classList.remove(
+"active"
+);
+
+loginTab.classList.add(
+"active"
+);
+
+signupTab.classList.remove(
+"active"
+);
+
+} else {
+
+loginForm.classList.remove(
+"active"
+);
+
+signupForm.classList.add(
+"active"
+);
+
+loginTab.classList.remove(
+"active"
+);
+
+signupTab.classList.add(
+"active"
+);
+
+}
+
+const message =
+document.getElementById(
+"authMessage"
+);
+
+message.textContent = "";
+
+message.className =
+"message";
+
+}
+
+
+async function login(event) {
+
+event.preventDefault();
+
+const email =
+document.getElementById(
+"loginEmail"
+).value.trim();
+
+const password =
+document.getElementById(
+"loginPassword"
+).value;
+
+if (!email || !password) {
+
+showAuthMessage(
+"Enter email and password",
+"error"
+);
+
+return;
+
+}
+
+try {
+
+const result =
+await api(
+"/login",
+{
+method: "POST",
+
+body: {
+
+email:
+email,
+
+password:
+password
+
+}
+
+}
+);
+
+console.log(
+"LOGIN RESULT:",
+result
+);
+
+if (!isSuccess(result)) {
+
+showAuthMessage(
+result.data.message ||
+result.data.error ||
+"Invalid email or password",
+"error"
+);
+
+return;
+
+}
+
+if (
+!result.data.user
+) {
+
+showAuthMessage(
+"Login succeeded but user data was not returned by backend",
+"error"
+);
+
+console.error(
+"Backend login response has no user:",
+result.data
+);
+
+return;
+
+}
+
+currentUser =
+result.data.user;
+
+closeModal(
+"loginModal"
+);
+
+updateNavbar();
+
+showToast(
+"Welcome " +
+(
+currentUser.name ||
+"User"
+) +
+" 👋"
+);
+
+/*
+ADMIN:
+Go to admin.html on the SAME frontend server.
+*/
+
+if (
+String(
+currentUser.role || ""
+).toLowerCase() ===
+"admin"
+) {
+
+window.location.href =
+window.location.origin +
+"/admin.html";
+
+return;
+
+}
+
+loadProfile();
+
+firstNotificationCheck =
+true;
+
+lastNotificationIds =
+[];
+
+startLiveNotifications();
+
+} catch (error) {
+
+console.error(
+"LOGIN ERROR:",
+error
+);
+
+showAuthMessage(
+"Cannot connect to backend. Check NodePort 30050.",
+"error"
+);
+
+}
+
+}
+
+
+/* =========================================================
+SIGNUP
+========================================================= */
+
+async function signup(event) {
+
+event.preventDefault();
+
+const name =
+document.getElementById(
+"signupName"
+).value.trim();
+
+const email =
+document.getElementById(
+"signupEmail"
+).value.trim();
+
+const password =
+document.getElementById(
+"signupPassword"
+).value;
+
+try {
+
+const result =
+await api(
+"/signup",
+{
+method: "POST",
+
+body: {
+
+name:
+name,
+
+email:
+email,
+
+password:
+password
+
+}
+
+}
+);
+
+if (!isSuccess(result)) {
+
+showAuthMessage(
+result.data.message ||
+result.data.error ||
+"Signup failed",
+"error"
+);
+
+return;
+
+}
+
+showAuthMessage(
+"Account created successfully. Please login.",
+"success"
+);
+
+document.getElementById(
+"signupForm"
+).reset();
+
+setTimeout(
+function() {
+
+switchAuth(
+"login"
+);
+
+},
+1000
+);
+
+} catch (error) {
+
+console.error(
+"SIGNUP ERROR:",
+error
+);
+
+showAuthMessage(
+"Backend connection failed",
+"error"
+);
+
+}
+
+}
+
+
+function showAuthMessage(
+text,
+type
+) {
+
+const element =
+document.getElementById(
+"authMessage"
+);
+
+element.textContent =
+text;
+
+element.className =
+"message " +
+type;
+
+}
+
+
+/* =========================================================
+SESSION CHECK
+========================================================= */
+
+async function checkLogin() {
+
+try {
+
+const result =
+await api(
+"/me"
+);
+
+console.log(
+"SESSION RESULT:",
+result
+);
+
+if (
+result.ok &&
+result.data &&
+result.data.user
+) {
+
+currentUser =
+result.data.user;
+
+updateNavbar();
+
+/*
+If admin opens index.html directly,
+redirect to admin page.
+*/
+
+if (
+String(
+currentUser.role || ""
+).toLowerCase() ===
+"admin"
+) {
+
+window.location.href =
+window.location.origin +
+"/admin.html";
+
+return;
+
+}
+
+loadProfile();
+
+firstNotificationCheck =
+true;
+
+lastNotificationIds =
+[];
+
+startLiveNotifications();
+
+} else {
+
+currentUser =
+null;
+
+updateNavbar();
+
+}
+
+} catch (error) {
+
+console.log(
+"No active session"
+);
+
+currentUser =
+null;
+
+updateNavbar();
+
+}
+
+}
+
+
+/* =========================================================
+LOGOUT
+========================================================= */
+
+async function logout() {
+
+try {
+
+await api(
+"/logout",
+{
+method: "POST"
+}
+);
+
+} catch (error) {
+
+console.error(
+"LOGOUT ERROR:",
+error
+);
+
+}
+
+stopLiveNotifications();
+
+currentUser =
+null;
+
+updateNavbar();
+
+hideMainSections();
+
+showToast(
+"Logged out successfully"
+);
+
+}
+
+
+/* =========================================================
+STOP NOTIFICATIONS
+========================================================= */
+
+function stopLiveNotifications() {
+
+if (notificationTimer) {
+
+clearInterval(
+notificationTimer
+);
+
+notificationTimer =
+null;
+
+}
+
+lastNotificationIds =
+[];
+
+firstNotificationCheck =
+true;
+
+updateNotificationBadge(
+0
+);
+
+closeLiveNotification();
+
+}
+
+
+/* =========================================================
+NAVBAR
+========================================================= */
+
+function updateNavbar() {
+
+const loginLink =
+document.getElementById(
+"loginNav"
+);
+
+if (!loginLink) {
+return;
+}
+
+if (currentUser) {
+
+loginLink.textContent =
+"Logout";
+
+loginLink.onclick =
+function() {
+
+logout();
+
+};
+
+} else {
+
+loginLink.textContent =
+"Login";
+
+loginLink.onclick =
+function() {
+
+openLogin();
+
+};
+
+}
+
+}
+
+
+/* =========================================================
+ORDERS
+========================================================= */
+
+async function showOrders() {
+
+if (!currentUser) {
+
+openLogin();
+
+showToast(
+"Please login to see your orders"
+);
+
+return;
+
+}
+
+hideMainSections();
+
+const section =
+document.getElementById(
+"ordersSection"
+);
+
+section.style.display =
+"block";
+
+const list =
+document.getElementById(
+"ordersList"
+);
+
+list.innerHTML = `
+<div class="loading">
+Loading your orders...
+</div>
+`;
+
+try {
+
+const result =
+await api(
+"/my-orders"
+);
+
+if (!isSuccess(result)) {
+
+list.innerHTML = `
+<div class="empty">
+Unable to load orders.
+<br><br>
+${escapeHtml(
+result.data.message ||
+result.data.error ||
+""
+)}
+</div>
+`;
+
+return;
+
+}
+
+const orders =
+Array.isArray(
+result.data.orders
+)
+? result.data.orders
+: [];
+
+if (
+orders.length === 0
+) {
+
+list.innerHTML = `
+<div class="empty">
+You haven't placed any orders yet.
+</div>
+`;
+
+return;
+
+}
+
+list.innerHTML = "";
+
+orders.forEach(
+function(order) {
+
+const status =
+order.status ||
+"Pending";
+
+const statusClass =
+getStatusClass(
+status
+);
+
+const itemsText =
+formatOrderItems(
+order.items
+);
+
+const canCancel =
+status === "Pending" ||
+status === "Accepted";
+
+const card =
+document.createElement(
+"div"
+);
+
+card.className =
+"order-card";
+
+card.innerHTML = `
+
+<div class="order-top">
+
+<div class="order-id">
+Order #${Number(order.id)}
+</div>
+
+<span class="status ${statusClass}">
+${escapeHtml(status)}
+</span>
+
+</div>
+
+<div class="order-details">
+
+<div>
+<strong>Items:</strong>
+${escapeHtml(itemsText)}
+</div>
+
+<div>
+<strong>Total:</strong>
+₹${Number(
+order.total || 0
+).toFixed(2)}
+</div>
+
+<div>
+<strong>Payment:</strong>
+${escapeHtml(
+order.payment_method || ""
+)}
+</div>
+
+<div>
+<strong>Address:</strong>
+${escapeHtml(
+order.address || ""
+)}
+</div>
+
+<div>
+<strong>Date:</strong>
+${formatDate(
+order.created_at
+)}
+</div>
+
+</div>
+
+${
+canCancel
+? `
+<button
+class="danger-btn"
+onclick="cancelOrder(${Number(order.id)})">
+
+Cancel Order
+
+</button>
+`
+: ""
+}
+
+${
+String(status).toLowerCase() ===
+"delivered"
+? `
+<button
+class="secondary-btn"
+onclick="openRating()">
+
+⭐ Rate FoodHub
+
+</button>
+`
+: ""
+}
+
+`;
+
+list.appendChild(
+card
+);
+
+}
+);
+
+} catch (error) {
+
+console.error(
+"ORDERS ERROR:",
+error
+);
+
+list.innerHTML = `
+<div class="empty">
+Backend connection failed.
+</div>
+`;
+
+}
+
+}
+
+
+/* =========================================================
+ORDER ITEMS
+========================================================= */
+
+function formatOrderItems(items) {
+
+if (!items) {
+return "";
+}
+
+if (
+Array.isArray(items)
+) {
+
+return items.map(
+function(item) {
+
+return (
+(
+item.name ||
+"Food"
+) +
+" x " +
+(
+item.quantity ||
+1
+)
+);
+
+}
+).join(", ");
+
+}
+
+if (
+typeof items === "string"
+) {
+
+try {
+
+const parsed =
+JSON.parse(items);
+
+if (
+Array.isArray(parsed)
+) {
+
+return formatOrderItems(
+parsed
+);
+
+}
+
+} catch (error) {
+
+return items;
+
+}
+
+return items;
+
+}
+
+return String(items);
+
+}
+
+
+/* =========================================================
+CANCEL ORDER
+========================================================= */
+
+async function cancelOrder(orderId) {
+
+if (!currentUser) {
+
+openLogin();
+
+return;
+
+}
+
+const confirmed =
+confirm(
+"Are you sure you want to cancel Order #" +
+orderId +
+"?"
+);
+
+if (!confirmed) {
+return;
+}
+
+try {
+
+const result =
+await api(
+"/my-orders/" +
+Number(orderId) +
+"/cancel",
+{
+method: "PUT"
+}
+);
+
+if (!isSuccess(result)) {
+
+showToast(
+result.data.message ||
+result.data.error ||
+"Unable to cancel order"
+);
+
+return;
+
+}
+
+showToast(
+"Order cancelled successfully"
+);
+
+await showOrders();
+
+await checkLiveNotifications();
+
+} catch (error) {
+
+console.error(
+"CANCEL ERROR:",
+error
+);
+
+showToast(
+"Backend connection failed"
+);
+
+}
+
+}
+
+
+/* =========================================================
+NOTIFICATIONS PAGE
+========================================================= */
+
+async function showNotifications() {
+
+if (!currentUser) {
+
+openLogin();
+
+showToast(
+"Please login to see notifications"
+);
+
+return;
+
+}
+
+hideMainSections();
+
+const section =
+document.getElementById(
+"notificationsSection"
+);
+
+section.style.display =
+"block";
+
+const list =
+document.getElementById(
+"notificationsList"
+);
+
+list.innerHTML = `
+<div class="loading">
+Loading notifications...
+</div>
+`;
+
+try {
+
+const result =
+await api(
+"/notifications"
+);
+
+if (!isSuccess(result)) {
+
+list.innerHTML = `
+<div class="empty">
+Unable to load notifications.
+</div>
+`;
+
+return;
+
+}
+
+const notifications =
+Array.isArray(
+result.data.notifications
+)
+? result.data.notifications
+: [];
+
+const unreadCount =
+notifications.filter(
+function(notification) {
+
+return notification.status ===
+"unread";
+
+}
+).length;
+
+updateNotificationBadge(
+unreadCount
+);
+
+if (
+notifications.length === 0
+) {
+
+list.innerHTML = `
+<div class="empty">
+No notifications 🔔
+</div>
+`;
+
+return;
+
+}
+
+list.innerHTML = "";
+
+notifications.forEach(
+function(notification) {
+
+const div =
+document.createElement(
+"div"
+);
+
+div.className =
+"notification " +
+(
+notification.status ===
+"unread"
+? "unread"
+: ""
+);
+
+div.innerHTML = `
+
+<strong>
+🔔 FoodHub Update
+</strong>
+
+<p style="margin-top:8px;">
+${escapeHtml(
+notification.message || ""
+)}
+</p>
+
+<div class="notification-time">
+${formatDate(
+notification.created_at
+)}
+</div>
+
+${
+notification.status ===
+"unread"
+? `
+<button
+class="read-btn"
+onclick="markNotificationRead(${Number(notification.id)})">
+
+Mark as Read
+
+</button>
+`
+: `
+<small>
+✓ Read
+</small>
+`
+}
+
+`;
+
+list.appendChild(
+div
+);
+
+}
+);
+
+} catch (error) {
+
+console.error(
+"NOTIFICATION ERROR:",
+error
+);
+
+list.innerHTML = `
+<div class="empty">
+Backend connection failed.
+</div>
+`;
+
+}
+
+}
+
+
+/* =========================================================
+MARK NOTIFICATION READ
+========================================================= */
+
+async function markNotificationRead(id) {
+
+try {
+
+const result =
+await api(
+"/notifications/" +
+Number(id) +
+"/read",
+{
+method: "PUT"
+}
+);
+
+if (
+!isSuccess(result)
+) {
+
+showToast(
+result.data.message ||
+"Unable to mark notification"
+);
+
+return;
+
+}
+
+await showNotifications();
+
+} catch (error) {
+
+console.error(
+"READ NOTIFICATION ERROR:",
+error
+);
+
+}
+
+}
+
+
+/* =========================================================
+PROFILE
+========================================================= */
+
+async function showProfile() {
+
+if (!currentUser) {
+
+openLogin();
+
+showToast(
+"Please login to view profile"
+);
+
+return;
+
+}
+
+hideMainSections();
+
+const section =
+document.getElementById(
+"profileSection"
+);
+
+section.style.display =
+"block";
+
+loadProfile();
+
+}
+
+
+function loadProfile() {
+
+if (!currentUser) {
+return;
+}
+
+const box =
+document.getElementById(
+"profileBox"
+);
+
+if (!box) {
+return;
+}
+
+box.innerHTML = `
+
+<div class="profile-row">
+
+<div class="profile-label">
+Name
+</div>
+
+<div class="profile-value">
+${escapeHtml(
+currentUser.name || ""
+)}
+</div>
+
+</div>
+
+<div class="profile-row">
+
+<div class="profile-label">
+Email
+</div>
+
+<div class="profile-value">
+${escapeHtml(
+currentUser.email || ""
+)}
+</div>
+
+</div>
+
+<div class="profile-row">
+
+<div class="profile-label">
+Account Type
+</div>
+
+<div class="profile-value">
+Customer
+</div>
+
+</div>
+
+<button
+class="primary-btn"
+style="margin-top:20px;"
+onclick="logout()">
+
+Logout
+
+</button>
+
+`;
+
+}
+
+
+/* =========================================================
+CONTACT
+========================================================= */
+
+async function submitContact(event) {
+
+event.preventDefault();
+
+const name =
+document.getElementById(
+"contactName"
+).value.trim();
+
+const email =
+document.getElementById(
+"contactEmail"
+).value.trim();
+
+const message =
+document.getElementById(
+"contactMessage"
+).value.trim();
+
+try {
+
+const result =
+await api(
+"/contact",
+{
+method: "POST",
+
+body: {
+
+name:
+name,
+
+email:
+email,
+
+message:
+message
+
+}
+
+}
+);
+
+if (!isSuccess(result)) {
+
+showToast(
+result.data.message ||
+result.data.error ||
+"Message failed"
+);
+
+return;
+
+}
+
+showToast(
+"Message sent successfully"
+);
+
+document.getElementById(
+"contactName"
+).value = "";
+
+document.getElementById(
+"contactEmail"
+).value = "";
+
+document.getElementById(
+"contactMessage"
+).value = "";
+
+} catch (error) {
+
+console.error(
+"CONTACT ERROR:",
+error
+);
+
+showToast(
+"Backend connection failed"
+);
+
+}
+
+}
+
+
+/* =========================================================
+RATING
+========================================================= */
+
+function openRating() {
+
+if (!currentUser) {
+
+openLogin();
+
+return;
+
+}
+
+openModal(
+"ratingModal"
+);
+
+}
+
+
+async function submitRating(event) {
+
+event.preventDefault();
+
+const rating =
+document.getElementById(
+"ratingValue"
+).value;
+
+const comment =
+document.getElementById(
+"ratingComment"
+).value.trim();
+
+try {
+
+const result =
+await api(
+"/rating",
+{
+method: "POST",
+
+body: {
+
+rating:
+Number(rating),
+
+comment:
+comment
+
+}
+
+}
+);
+
+if (!isSuccess(result)) {
+
+showToast(
+result.data.message ||
+result.data.error ||
+"Rating failed"
+);
+
+return;
+
+}
+
+closeModal(
+"ratingModal"
+);
+
+showToast(
+"Thank you for your rating! ⭐"
+);
+
+document.getElementById(
+"ratingValue"
+).value = "";
+
+document.getElementById(
+"ratingComment"
+).value = "";
+
+} catch (error) {
+
+console.error(
+"RATING ERROR:",
+error
+);
+
+showToast(
+"Backend connection failed"
+);
+
+}
+
+}
+
+
+/* =========================================================
+UI
+========================================================= */
+
+function hideMainSections() {
+
+document.getElementById(
+"ordersSection"
+).style.display =
+"none";
+
+document.getElementById(
+"notificationsSection"
+).style.display =
+"none";
+
+document.getElementById(
+"profileSection"
+).style.display =
+"none";
+
+}
+
+
+function scrollToSection(id) {
+
+hideMainSections();
+
+const element =
+document.getElementById(
+id
+);
+
+if (element) {
+
+element.scrollIntoView({
+behavior: "smooth"
+});
+
+}
+
+}
+
+
+function openModal(id) {
+
+const modal =
+document.getElementById(
+id
+);
+
+if (modal) {
+
+modal.classList.add(
+"show"
+);
+
+}
+
+}
+
+
+function closeModal(id) {
+
+const modal =
+document.getElementById(
+id
+);
+
+if (modal) {
+
+modal.classList.remove(
+"show"
+);
+
+}
+
+}
+
+
+function toggleMobileMenu() {
+
+const links =
+document.querySelector(
+".nav-links"
+);
+
+if (
+links.style.display ===
+"flex"
+) {
+
+links.style.display =
+"none";
+
+} else {
+
+links.style.display =
+"flex";
+
+links.style.flexDirection =
+"column";
+
+links.style.position =
+"absolute";
+
+links.style.top =
+"70px";
+
+links.style.right =
+"0";
+
+links.style.background =
+"#111827";
+
+links.style.padding =
+"20px";
+
+links.style.width =
+"220px";
+
+}
+
+}
+
+
+/* =========================================================
+STATUS
+========================================================= */
+
+function getStatusClass(status) {
+
+const value =
+String(status || "")
+.toLowerCase();
+
+if (value === "accepted") {
+return "status-accepted";
+}
+
+if (value === "preparing") {
+return "status-preparing";
+}
+
+if (value === "ready") {
+return "status-ready";
+}
+
+if (value === "delivered") {
+return "status-delivered";
+}
+
+if (value === "cancelled") {
+return "status-cancelled";
+}
+
+return "status-pending";
+
+}
+
+
+/* =========================================================
+DATE
+========================================================= */
+
+function formatDate(date) {
+
+if (!date) {
+return "";
+}
+
+try {
+
+return new Date(date)
+.toLocaleString(
+"en-IN"
+);
+
+} catch (error) {
+
+return String(date);
+
+}
+
+}
+
+
+/* =========================================================
+TOAST
+========================================================= */
+
+function showToast(message) {
+
+const toast =
+document.getElementById(
+"toast"
+);
+
+toast.textContent =
+message;
+
+toast.classList.add(
+"show"
+);
+
+setTimeout(
+function() {
+
+toast.classList.remove(
+"show"
+);
+
+},
+3000
+);
+
+}
+
+
+/* =========================================================
+SECURITY
+========================================================= */
+
+function escapeHtml(value) {
+
+if (
+value === null ||
+value === undefined
+) {
+
+return "";
+
+}
+
+return String(value)
+
+.replace(
+/&/g,
+"&amp;"
+)
+
+.replace(
+/</g,
+"&lt;"
+)
+
+.replace(
+/>/g,
+"&gt;"
+)
+
+.replace(
+/"/g,
+"&quot;"
+)
+
+.replace(
+/'/g,
+"&#039;"
+);
+
+}
+
+
+/* =========================================================
+MODAL OUTSIDE CLICK
+========================================================= */
+
+document
+.querySelectorAll(
+".modal"
+)
+.forEach(
+function(modal) {
+
+modal.addEventListener(
+"click",
+function(event) {
+
+if (
+event.target ===
+modal
+) {
+
+modal.classList.remove(
+"show"
+);
+
+}
+
+}
+);
+
+}
+);
+
+
+/* =========================================================
+LIVE NOTIFICATIONS
+========================================================= */
+
+async function checkLiveNotifications() {
+
+if (!currentUser) {
+return;
+}
+
+try {
+
+const result =
+await api(
+"/notifications"
+);
+
+if (!isSuccess(result)) {
+return;
+}
+
+const notifications =
+Array.isArray(
+result.data.notifications
+)
+? result.data.notifications
+: [];
+
+const unreadNotifications =
+notifications.filter(
+function(notification) {
+
+return notification.status ===
+"unread";
+
+}
+);
+
+updateNotificationBadge(
+unreadNotifications.length
+);
+
+if (
+firstNotificationCheck
+) {
+
+lastNotificationIds =
+notifications.map(
+function(notification) {
+
+return Number(
+notification.id
+);
+
+}
+);
+
+firstNotificationCheck =
+false;
+
+return;
+
+}
+
+const newNotifications =
+notifications.filter(
+function(notification) {
+
+return !lastNotificationIds.includes(
+Number(notification.id)
+);
+
+}
+);
+
+if (
+newNotifications.length > 0
+) {
+
+const newest =
+newNotifications[
+newNotifications.length - 1
+];
+
+showLiveNotification(
+newest
+);
+
+refreshCustomerOrders();
+
+}
+
+lastNotificationIds =
+notifications.map(
+function(notification) {
+
+return Number(
+notification.id
+);
+
+}
+);
+
+} catch (error) {
+
+console.error(
+"LIVE NOTIFICATION ERROR:",
+error
+);
+
+}
+
+}
+
+
+/* =========================================================
+NOTIFICATION BADGE
+========================================================= */
+
+function updateNotificationBadge(count) {
+
+const badge =
+document.getElementById(
+"notificationBadge"
+);
+
+if (!badge) {
+return;
+}
+
+if (
+Number(count) > 0
+) {
+
+badge.textContent =
+Number(count) > 99
+? "99+"
+: Number(count);
+
+badge.classList.add(
+"show"
+);
+
+} else {
+
+badge.textContent =
+"0";
+
+badge.classList.remove(
+"show"
+);
+
+}
+
+}
+
+
+/* =========================================================
+LIVE POPUP
+========================================================= */
+
+function showLiveNotification(
+notification
+) {
+
+const popup =
+document.getElementById(
+"liveNotification"
+);
+
+const message =
+document.getElementById(
+"liveNotificationMessage"
+);
+
+const time =
+document.getElementById(
+"liveNotificationTime"
+);
+
+if (!popup) {
+return;
+}
+
+message.textContent =
+notification.message ||
+"Your order has been updated.";
+
+time.textContent =
+formatDate(
+notification.created_at
+);
+
+popup.classList.add(
+"show"
+);
+
+setTimeout(
+function() {
+
+closeLiveNotification();
+
+},
+6000
+);
+
+}
+
+
+function closeLiveNotification() {
+
+const popup =
+document.getElementById(
+"liveNotification"
+);
+
+if (popup) {
+
+popup.classList.remove(
+"show"
+);
+
+}
+
+}
+
+
+/* =========================================================
+REFRESH ORDERS
+========================================================= */
+
+async function refreshCustomerOrders() {
+
+if (!currentUser) {
+return;
+}
+
+const section =
+document.getElementById(
+"ordersSection"
+);
+
+if (
+section &&
+section.style.display !==
+"none"
+) {
+
+await showOrders();
+
+}
+
+}
+
+
+/* =========================================================
+START LIVE NOTIFICATIONS
+========================================================= */
+
+function startLiveNotifications() {
+
+if (!currentUser) {
+return;
+}
+
+if (notificationTimer) {
+
+clearInterval(
+notificationTimer
+);
+
+}
+
+firstNotificationCheck =
+true;
+
+checkLiveNotifications();
+
+notificationTimer =
+setInterval(
+function() {
+
+if (currentUser) {
+
+checkLiveNotifications();
+
+}
+
+},
+5000
+);
+
+}
+
+</script>
+
+</body>
+</html>
