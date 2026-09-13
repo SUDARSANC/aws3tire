@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodHub Admin Dashboard</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f6fa;
+    color: #222;
+}
+
+/* LOGIN */
+
+#loginPage {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #ff7a00, #e53935);
+}
+
+.login-box {
+    width: 380px;
+    max-width: 92%;
+    background: white;
+    padding: 35px;
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.25);
+}
+
+.login-box h1 {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.login-box p {
+    text-align: center;
+    color: #777;
+    margin-bottom: 25px;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 13px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 9px;
+    font-size: 15px;
+}
+
+button {
+    border: none;
+    border-radius: 9px;
+    padding: 11px 16px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.login-btn {
+    width: 100%;
+    background: #e53935;
+    color: white;
+    font-size: 16px;
+}
+
+.login-btn:hover {
+    background: #c62828;
+}
+
+.error {
+    color: #d32f2f;
+    text-align: center;
+    margin-top: 12px;
+}
+
+/* DASHBOARD */
+
+#dashboard {
+    display: none;
+}
+
+.navbar {
+    height: 65px;
+    background: #222;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+}
+
+.navbar h2 {
+    color: #ff8a00;
+}
+
+.logout {
+    background: #e53935;
+    color: white;
+}
+
+.container {
+    padding: 25px;
+    max-width: 1400px;
+    margin: auto;
+}
+
+.welcome {
+    margin-bottom: 25px;
+}
+
+.welcome h1 {
+    margin-bottom: 5px;
+}
+
+/* STATS */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
+
+.stat-card h3 {
+    color: #777;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.stat-card strong {
+    font-size: 28px;
+}
+
+/* SECTIONS */
+
+.section {
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.07);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.refresh {
+    background: #ff7a00;
+    color: white;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    vertical-align: top;
+}
+
+th {
+    background: #fafafa;
+}
+
+.status {
+    padding: 6px 9px;
+    border-radius: 6px;
+    background: #fff3cd;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.update-btn {
+    background: #222;
+    color: white;
+}
+
+.small-text {
+    color: #777;
+    font-size: 13px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 1000px) {
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media(max-width: 600px) {
+    .navbar {
+        padding: 0 12px;
+    }
+
+    .navbar h2 {
+        font-size: 18px;
+    }
+
+    .container {
+        padding: 12px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card strong {
+        font-size: 24px;
+    }
+
+    .section {
+        padding: 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN PAGE -->
+
+<div id="loginPage">
+
+    <div class="login-box">
+
+        <h1>🍔 FoodHub</h1>
+
+        <p>Admin Dashboard</p>
+
+        <form id="loginForm">
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Admin Email"
+                value="demo@foodhub.com"
+                required
+            >
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                value="Demo@12345"
+                required
+            >
+
+            <button class="login-btn" type="submit">
+                Login
+            </button>
+
+        </form>
+
+        <div id="loginError" class="error"></div>
+
+    </div>
+
+</div>
+
+
+<!-- DASHBOARD -->
+
+<div id="dashboard">
+
+    <div class="navbar">
+
+        <h2>🍔 FoodHub Admin</h2>
+
+        <button class="logout" onclick="logout()">
+            Logout
+        </button>
+
+    </div>
+
+
+    <div class="container">
+
+        <div class="welcome">
+
+            <h1>Dashboard</h1>
+
+            <p class="small-text">
+                Manage FoodHub customers, orders and food items.
+            </p>
+
+        </div>
+
+
+        <!-- STATS -->
+
+        <div class="stats">
+
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <strong id="totalUsers">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <h3>Total Orders</h3>
+                <strong id="totalOrders">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <h3>Total Foods</h3>
+                <strong id="totalFoods">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <h3>Total Sales</h3>
+                <strong id="totalSales">₹0</strong>
+            </div>
+
+            <div class="stat-card">
+                <h3>Pending Orders</h3>
+                <strong id="pendingOrders">0</strong>
+            </div>
+
+        </div>
+
+
+        <!-- USERS -->
+
+        <div class="section">
+
+            <div class="section-header">
+
+                <h2>👥 Users</h2>
+
+                <button class="refresh" onclick="loadUsers()">
+                    Refresh
+                </button>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="usersTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- ORDERS -->
+
+        <div class="section">
+
+            <div class="section-header">
+
+                <h2>🛒 Orders</h2>
+
+                <button class="refresh" onclick="loadOrders()">
+                    Refresh
+                </button>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Update</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="ordersTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- FOODS -->
+
+        <div class="section">
+
+            <div class="section-header">
+
+                <h2>🍔 Foods</h2>
+
+                <button class="refresh" onclick="loadFoods()">
+                    Refresh
+                </button>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Available</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="foodsTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const BACKEND_URL = "http://18.60.55.13:30050";
+
+let isAdmin = false;
+
+
+/* LOGIN */
+
+document
+.getElementById("loginForm")
+.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    const error =
+        document.getElementById("loginError");
+
+    error.textContent = "";
+
+    try {
+
+        const response = await fetch(
+            BACKEND_URL + "/admin/login",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+
+            error.textContent =
+                data.message || "Login failed";
+
+            return;
+        }
+
+        isAdmin = true;
+
+        sessionStorage.setItem(
+            "foodhub_admin",
+            "true"
+        );
+
+        document.getElementById("loginPage").style.display =
+            "none";
+
+        document.getElementById("dashboard").style.display =
+            "block";
+
+        loadDashboard();
+
+    } catch (err) {
+
+        error.textContent =
+            "Backend connection failed";
+
+        console.error(err);
+    }
+
+});
+
+
+/* LOAD DASHBOARD */
+
+async function loadDashboard() {
+
+    await loadStats();
+    await loadUsers();
+    await loadOrders();
+    await loadFoods();
+
+}
+
+
+/* STATS */
+
+async function loadStats() {
+
+    try {
+
+        const response = await fetch(
+            BACKEND_URL + "/admin/stats",
+            {
+                headers: {
+                    "X-Admin-Role": "admin"
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!data.success) return;
+
+        document.getElementById("totalUsers").textContent =
+            data.stats.total_users;
+
+        document.getElementById("totalOrders").textContent =
+            data.stats.total_orders;
+
+        document.getElementById("totalFoods").textContent =
+            data.stats.total_foods;
+
+        document.getElementById("totalSales").textContent =
+            "₹" + Number(data.stats.total_sales).toFixed(2);
+
+        document.getElementById("pendingOrders").textContent =
+            data.stats.pending_orders;
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* USERS */
+
+async function loadUsers() {
+
+    const table =
+        document.getElementById("usersTable");
+
+    try {
+
+        const response = await fetch(
+            BACKEND_URL + "/admin/users",
+            {
+                headers: {
+                    "X-Admin-Role": "admin"
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        table.innerHTML = "";
+
+        if (!data.success) return;
+
+        data.users.forEach(user => {
+
+            table.innerHTML += `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${escapeHtml(user.name)}</td>
+                    <td>${escapeHtml(user.email)}</td>
+                    <td>${escapeHtml(user.role)}</td>
+                </tr>
+            `;
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* ORDERS */
+
+async function loadOrders() {
+
+    const table =
+        document.getElementById("ordersTable");
+
+    try {
+
+        const response = await fetch(
+            BACKEND_URL + "/admin/orders",
+            {
+                headers: {
+                    "X-Admin-Role": "admin"
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        table.innerHTML = "";
+
+        if (!data.success) return;
+
+        data.orders.forEach(order => {
+
+            table.innerHTML += `
+                <tr>
+
+                    <td>${order.id}</td>
+
+                    <td>
+                        <strong>
+                            ${escapeHtml(order.customer_name || "")}
+                        </strong>
+                        <br>
+                        <span class="small-text">
+                            ${escapeHtml(order.customer_email)}
+                        </span>
+                    </td>
+
+                    <td>
+                        ${escapeHtml(order.items)}
+                    </td>
+
+                    <td>
+                        ₹${Number(order.total).toFixed(2)}
+                    </td>
+
+                    <td>
+                        <span class="status">
+                            ${escapeHtml(order.status || "Pending")}
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <select id="status-${order.id}">
+
+                            <option>Pending</option>
+                            <option>Confirmed</option>
+                            <option>Preparing</option>
+                            <option>Out for Delivery</option>
+                            <option>Delivered</option>
+                            <option>Cancelled</option>
+
+                        </select>
+
+                        <button
+                            class="update-btn"
+                            onclick="updateOrder(${order.id})"
+                        >
+                            Update
+                        </button>
+
+                    </td>
+
+                </tr>
+            `;
+
+            document.getElementById(
+                "status-" + order.id
+            ).value = order.status || "Pending";
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* UPDATE ORDER */
+
+async function updateOrder(orderId) {
+
+    const status =
+        document.getElementById(
+            "status-" + orderId
+        ).value;
+
+    try {
+
+        const response = await fetch(
+            BACKEND_URL +
+            "/admin/orders/" +
+            orderId +
+            "/status",
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Admin-Role": "admin"
+                },
+
+                body: JSON.stringify({
+                    status: status
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+
+            alert("Order status updated");
+
+            loadOrders();
+            loadStats();
+
+        } else {
+
+            alert(data.message || "Update failed");
+
+        }
+
+    } catch (error) {
+
+        alert("Backend connection failed");
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* FOODS */
+
+async function loadFoods() {
+
+    const table =
+        document.getElementById("foodsTable");
+
+    try {
+
+        const response = await fetch(
+            BACKEND_URL + "/admin/foods",
+            {
+                headers: {
+                    "X-Admin-Role": "admin"
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        table.innerHTML = "";
+
+        if (!data.success) return;
+
+        data.foods.forEach(food => {
+
+            table.innerHTML += `
+                <tr>
+
+                    <td>${food.id}</td>
+
+                    <td>
+                        ${escapeHtml(food.name)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(food.category)}
+                    </td>
+
+                    <td>
+                        ₹${Number(food.price).toFixed(2)}
+                    </td>
+
+                    <td>
+                        ${food.is_available ? "✅ Yes" : "❌ No"}
+                    </td>
+
+                </tr>
+            `;
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* LOGOUT */
+
+function logout() {
+
+    sessionStorage.removeItem("foodhub_admin");
+
+    isAdmin = false;
+
+    document.getElementById("dashboard").style.display =
+        "none";
+
+    document.getElementById("loginPage").style.display =
+        "flex";
+
+}
+
+
+/* BASIC HTML ESCAPE */
+
+function escapeHtml(value) {
+
+    const div = document.createElement("div");
+
+    div.textContent = value ?? "";
+
+    return div.innerHTML;
+
+}
+
+</script>
+
+</body>
+</html>
