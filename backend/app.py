@@ -10,10 +10,10 @@ app = Flask(__name__)
 # =========================================================
 
 app.secret_key = "foodhub-secret-key-2026"
-
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = False
+app.config["SESSION_COOKIE_PATH"] = "/"
 
 # =========================================================
 # CORS CONFIGURATION
@@ -358,6 +358,23 @@ def create_order():
 
         order_id = cursor.lastrowid
 
+        cursor.execute(
+            """
+            INSERT INTO order_status_history
+            (
+                order_id,
+                status,
+                message
+            )
+            VALUES (%s, %s, %s)
+            """,
+            (
+                order_id,
+                "Pending",
+                "Order placed successfully"
+            )
+        )
+
         db.commit()
 
         cursor.close()
@@ -437,6 +454,71 @@ def get_my_orders():
             "error": str(e)
         }), 500
 
+
+# =========================================================
+# GET ORDER TRACKING
+# =========================================================
+
+@app.route("/my-orders/<int:order_id>/tracking", methods=["GET"])
+def get_order_tracking(order_id):
+
+    if "user_id" not in session:
+        return jsonify({
+            "success": False,
+            "message": "Please login first"
+        }), 401
+
+    try:
+
+        db = get_db_connection()
+        cursor = db.cursor(dictionary=True)
+
+        cursor.execute(
+            """
+            SELECT
+                h.id,
+                h.status,
+                h.message,
+                h.created_at
+            FROM order_status_history h
+            JOIN orders o
+                ON o.id = h.order_id
+            WHERE h.order_id = %s
+              AND o.customer_email = %s
+            ORDER BY h.id ASC
+            """,
+            (
+                order_id,
+                session["email"]
+            )
+        )
+
+        history = cursor.fetchall()
+
+        cursor.close()
+        db.close()
+
+        if not history:
+            return jsonify({
+                "success": False,
+                "message": "Order not found"
+            }), 404
+
+        return jsonify({
+            "success": True,
+            "order_id": order_id,
+            "tracking": history
+        }), 200
+
+    except Exception as e:
+
+        print("ORDER TRACKING ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": "Failed to load order tracking",
+            "error": str(e)
+        }), 500
 
 # =========================================================
 # CANCEL ORDER
@@ -807,7 +889,7 @@ def submit_rating():
 # =========================================================
 
 def admin_required():
-    role = request.headers.get("X-Admin-Role")
+    role = session.get("role") or request.headers.get("X-Admin-Role")
     return role == "admin"
 
 
@@ -1021,8 +1103,7 @@ def admin_update_order_status(order_id):
         }), 403
 
     try:
-        data = request.get_json()
-
+        data = request.get_json() or {}
         status = data.get("status", "").strip()
 
         allowed_statuses = [
@@ -1034,6 +1115,15 @@ def admin_update_order_status(order_id):
             "Cancelled"
         ]
 
+        status_messages = {
+            "Pending": "Order placed successfully",
+            "Confirmed": "Your order has been confirmed",
+            "Preparing": "Your food is being prepared",
+            "Out for Delivery": "Your order is out for delivery",
+            "Delivered": "Your order has been delivered",
+            "Cancelled": "Your order has been cancelled"
+        }
+
         if status not in allowed_statuses:
             return jsonify({
                 "success": False,
@@ -1041,11 +1131,82 @@ def admin_update_order_status(order_id):
             }), 400
 
         db = get_db_connection()
-        cursor = db.cursor()
+        cursor = db.cursor(dictionary=True)
 
         cursor.execute(
-            "UPDATE orders SET status=%s WHERE id=%s",
+            """
+            SELECT id, customer_email, status
+            FROM orders
+            WHERE id = %s
+            """,
+            (order_id,)
+        )
+
+        order = cursor.fetchone()
+
+        if not order:
+            cursor.close()
+            db.close()
+
+            return jsonify({
+                "success": False,
+                "message": "Order not found"
+            }), 404
+
+        old_status = order["status"]
+
+        if old_status == status:
+            cursor.close()
+            db.close()
+
+            return jsonify({
+                "success": True,
+                "message": "Order status is already " + status
+            }), 200
+
+        cursor.execute(
+            """
+            UPDATE orders
+            SET status = %s
+            WHERE id = %s
+            """,
             (status, order_id)
+        )
+
+        cursor.execute(
+            """
+            INSERT INTO order_status_history
+            (
+                order_id,
+                status,
+                message
+            )
+            VALUES (%s, %s, %s)
+            """,
+            (
+                order_id,
+                status,
+                status_messages[status]
+            )
+        )
+
+        cursor.execute(
+            """
+            INSERT INTO notifications
+            (
+                customer_email,
+                order_id,
+                message,
+                status
+            )
+            VALUES (%s, %s, %s, %s)
+            """,
+            (
+                order["customer_email"],
+                order_id,
+                status_messages[status],
+                "unread"
+            )
         )
 
         db.commit()
@@ -1055,10 +1216,18 @@ def admin_update_order_status(order_id):
 
         return jsonify({
             "success": True,
-            "message": "Order status updated"
-        })
+            "message": "Order status updated",
+            "order_id": order_id,
+            "old_status": old_status,
+            "new_status": status
+        }), 200
 
     except Exception as e:
+        try:
+            db.rollback()
+        except:
+            pass
+
         print("ADMIN ORDER STATUS ERROR:", e)
 
         return jsonify({
