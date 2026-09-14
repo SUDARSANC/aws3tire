@@ -6,889 +6,2121 @@
 <title>FoodHub Admin Dashboard</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background: #f5f6fa;
-    color: #222;
+:root{
+    --orange:#ff5a1f;
+    --orange2:#ff7a18;
+    --navy:#11163f;
+    --navy2:#171d50;
+    --bg:#f5f6fa;
+    --white:#ffffff;
+    --text:#172033;
+    --muted:#7c8497;
+    --border:#e8eaf0;
+    --shadow:0 8px 25px rgba(20,28,70,.07);
+}
+
+body{
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+}
+
+button,
+input,
+select{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+    border:0;
+}
+
+.hidden{
+    display:none!important;
 }
 
 /* LOGIN */
 
-#loginPage {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #ff7a00, #e53935);
+#loginScreen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:linear-gradient(135deg,#10153d,#242b67);
 }
 
-.login-box {
-    width: 380px;
-    max-width: 92%;
-    background: white;
-    padding: 35px;
-    border-radius: 18px;
-    box-shadow: 0 15px 40px rgba(0,0,0,.25);
+.login-card{
+    width:420px;
+    max-width:100%;
+    background:white;
+    border-radius:24px;
+    padding:40px;
+    box-shadow:0 30px 80px rgba(0,0,0,.3);
 }
 
-.login-box h1 {
-    text-align: center;
-    margin-bottom: 8px;
+.brand{
+    text-align:center;
+    margin-bottom:28px;
 }
 
-.login-box p {
-    text-align: center;
-    color: #777;
-    margin-bottom: 25px;
+.brand-icon{
+    width:62px;
+    height:62px;
+    margin:0 auto 13px;
+    border-radius:18px;
+    background:linear-gradient(135deg,var(--orange),var(--orange2));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
 }
 
-input,
-select {
-    width: 100%;
-    padding: 13px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 9px;
-    font-size: 15px;
+.brand h1{
+    font-size:25px;
 }
 
-button {
-    border: none;
-    border-radius: 9px;
-    padding: 11px 16px;
-    cursor: pointer;
-    font-weight: bold;
+.brand p{
+    color:var(--muted);
+    margin-top:6px;
+    font-size:13px;
 }
 
-.login-btn {
-    width: 100%;
-    background: #e53935;
-    color: white;
-    font-size: 16px;
+.field{
+    margin-bottom:17px;
 }
 
-.login-btn:hover {
-    background: #c62828;
+.field label{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:7px;
 }
 
-.error {
-    color: #d32f2f;
-    text-align: center;
-    margin-top: 12px;
+.field input{
+    width:100%;
+    padding:13px 14px;
+    border:1px solid var(--border);
+    border-radius:11px;
+    outline:none;
 }
 
-/* DASHBOARD */
-
-#dashboard {
-    display: none;
+.field input:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 3px rgba(255,90,31,.1);
 }
 
-.navbar {
-    height: 65px;
-    background: #222;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 25px;
+.login-btn{
+    width:100%;
+    padding:14px;
+    border-radius:11px;
+    color:white;
+    background:linear-gradient(135deg,var(--orange),var(--orange2));
+    font-weight:800;
 }
 
-.navbar h2 {
-    color: #ff8a00;
+.error{
+    color:#c62828;
+    background:#fff0ef;
+    padding:10px;
+    border-radius:9px;
+    margin-bottom:14px;
+    font-size:13px;
 }
 
-.logout {
-    background: #e53935;
-    color: white;
+/* APP */
+
+#app{
+    display:none;
+    min-height:100vh;
 }
 
-.container {
-    padding: 25px;
-    max-width: 1400px;
-    margin: auto;
+#app.show{
+    display:flex;
 }
 
-.welcome {
-    margin-bottom: 25px;
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    width:235px;
+    background:linear-gradient(180deg,#10153d,#171d50);
+    color:white;
+    padding:23px 14px;
+    z-index:50;
 }
 
-.welcome h1 {
-    margin-bottom: 5px;
+.logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 12px 24px;
+    border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.logo-mark{
+    width:36px;
+    height:36px;
+    border-radius:10px;
+    background:linear-gradient(135deg,var(--orange),var(--orange2));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+}
+
+.logo strong{
+    font-size:17px;
+}
+
+.logo span{
+    color:#ff7134;
+}
+
+.nav{
+    padding-top:20px;
+}
+
+.nav button{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:13px;
+    color:#c7cce0;
+    background:transparent;
+    padding:12px 14px;
+    border-radius:10px;
+    margin:4px 0;
+    text-align:left;
+    transition:.2s;
+}
+
+.nav button:hover{
+    background:rgba(255,255,255,.08);
+    color:white;
+}
+
+.nav button.active{
+    background:linear-gradient(90deg,rgba(255,90,31,.25),rgba(255,90,31,.08));
+    color:#ff874d;
+    box-shadow:inset 3px 0 0 var(--orange);
+}
+
+.nav-icon{
+    width:20px;
+    text-align:center;
+    font-size:17px;
+}
+
+.admin-user{
+    position:absolute;
+    left:14px;
+    right:14px;
+    bottom:18px;
+    background:rgba(255,255,255,.08);
+    padding:11px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+}
+
+.avatar{
+    width:35px;
+    height:35px;
+    border-radius:50%;
+    background:white;
+    color:var(--orange);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+}
+
+.admin-user b{
+    font-size:12px;
+}
+
+.admin-user small{
+    display:block;
+    color:#c7cce0;
+    font-size:10px;
+    margin-top:3px;
+}
+
+/* MAIN */
+
+.main{
+    margin-left:235px;
+    width:calc(100% - 235px);
+    min-height:100vh;
+}
+
+.topbar{
+    height:76px;
+    background:white;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 34px;
+    position:sticky;
+    top:0;
+    z-index:20;
+}
+
+.page-title h1{
+    font-size:22px;
+}
+
+.page-title p{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px;
+}
+
+.top-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.search{
+    width:245px;
+    position:relative;
+}
+
+.search input{
+    width:100%;
+    padding:11px 15px 11px 38px;
+    border:1px solid var(--border);
+    border-radius:24px;
+    outline:none;
+}
+
+.search span{
+    position:absolute;
+    left:14px;
+    top:9px;
+    color:#8991a5;
+    font-size:18px;
+}
+
+.icon-btn{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:#f5f6fa;
+    color:#687086;
+}
+
+.logout{
+    background:var(--orange);
+    color:white;
+    padding:10px 17px;
+    border-radius:9px;
+    font-weight:700;
+}
+
+.content{
+    padding:28px 34px 45px;
 }
 
 /* STATS */
 
-.stats {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 18px;
-    margin-bottom: 30px;
+.stats{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:16px;
+    margin-bottom:22px;
 }
 
-.stat-card {
-    background: white;
-    padding: 22px;
-    border-radius: 14px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+.stat{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:18px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
 }
 
-.stat-card h3 {
-    color: #777;
-    font-size: 14px;
-    margin-bottom: 10px;
+.stat:after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:3px;
+    background:var(--accent);
 }
 
-.stat-card strong {
-    font-size: 28px;
+.stat-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.stat-label{
+    font-size:11px;
+    color:var(--muted);
+    font-weight:700;
+}
+
+.stat-value{
+    font-size:21px;
+    font-weight:800;
+    margin-top:6px;
+}
+
+.stat-sub{
+    font-size:10px;
+    color:#9aa1b2;
+    margin-top:4px;
+}
+
+.stat-icon{
+    width:42px;
+    height:42px;
+    border-radius:13px;
+    background:#f1edff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+}
+
+.stat:nth-child(2) .stat-icon{
+    background:#edf7ff;
+}
+
+.stat:nth-child(3) .stat-icon{
+    background:#effaf1;
+}
+
+.stat:nth-child(4) .stat-icon{
+    background:#fff7e8;
+}
+
+.stat:nth-child(5) .stat-icon{
+    background:#fff0f5;
+}
+
+/* PANELS */
+
+.panel{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:15px;
+    box-shadow:var(--shadow);
+    margin-bottom:22px;
+    overflow:hidden;
+}
+
+.panel-head{
+    padding:17px 20px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.panel-title{
+    font-weight:800;
+    font-size:15px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+}
+
+.panel-title i{
+    color:var(--orange);
+    font-style:normal;
+}
+
+.refresh{
+    background:var(--orange);
+    color:white;
+    padding:8px 13px;
+    border-radius:8px;
+    font-size:11px;
+    font-weight:800;
+}
+
+.table-wrap{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:760px;
+}
+
+th,
+td{
+    text-align:left;
+    padding:12px 14px;
+    border-bottom:1px solid #f0f1f5;
+    font-size:11px;
+    vertical-align:middle;
+}
+
+th{
+    background:#fafbfc;
+    color:#7c8496;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.3px;
+}
+
+tr:last-child td{
+    border-bottom:0;
+}
+
+.status{
+    display:inline-block;
+    padding:5px 8px;
+    border-radius:6px;
+    font-size:10px;
+    font-weight:800;
+}
+
+.s-Pending{
+    background:#fff4cf;
+    color:#9a7000;
+}
+
+.s-Confirmed{
+    background:#eaf2ff;
+    color:#2362b5;
+}
+
+.s-Preparing{
+    background:#fff0dd;
+    color:#c35b00;
+}
+
+.s-Out{
+    background:#e9f6ff;
+    color:#0877ad;
+}
+
+.s-Delivered{
+    background:#e8f8ec;
+    color:#23823d;
+}
+
+.s-Cancelled{
+    background:#ffe8e8;
+    color:#bd2b2b;
+}
+
+.status-select{
+    padding:8px 9px;
+    border:1px solid #dfe2ea;
+    border-radius:8px;
+    background:white;
+    min-width:125px;
+    font-size:11px;
+}
+
+.update-btn{
+    margin-top:7px;
+    background:var(--navy);
+    color:white;
+    padding:7px 12px;
+    border-radius:7px;
+    font-size:10px;
+    font-weight:800;
+}
+
+.update-btn:hover{
+    background:#252d67;
+}
+
+.empty{
+    text-align:center;
+    padding:35px;
+    color:var(--muted);
+}
+
+/* FOODS */
+
+.cards-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+    padding:20px;
+}
+
+.food-card{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px;
+    box-shadow:var(--shadow);
+}
+
+.food-icon{
+    width:45px;
+    height:45px;
+    border-radius:12px;
+    background:#fff1e9;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    margin-bottom:12px;
+}
+
+.food-card h3{
+    font-size:14px;
+    margin-bottom:7px;
+}
+
+.food-card p{
+    font-size:11px;
+    color:var(--muted);
+    line-height:1.6;
+}
+
+.price{
+    font-weight:800;
+    color:var(--orange);
+    margin-top:9px;
 }
 
 /* SECTIONS */
 
-.section {
-    background: white;
-    padding: 20px;
-    border-radius: 14px;
-    margin-bottom: 25px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.07);
+.section{
+    display:none;
 }
 
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 18px;
+.section.active{
+    display:block;
 }
 
-.refresh {
-    background: #ff7a00;
-    color: white;
+/* TOAST */
+
+.toast{
+    position:fixed;
+    right:25px;
+    bottom:25px;
+    background:#18203f;
+    color:white;
+    padding:13px 17px;
+    border-radius:10px;
+    box-shadow:0 10px 30px rgba(0,0,0,.2);
+    z-index:100;
+    font-size:12px;
 }
 
-.table-wrapper {
-    overflow-x: auto;
+.toast.ok{
+    border-left:4px solid #2dbd63;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 700px;
-}
-
-th,
-td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
-    vertical-align: top;
-}
-
-th {
-    background: #fafafa;
-}
-
-.status {
-    padding: 6px 9px;
-    border-radius: 6px;
-    background: #fff3cd;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.update-btn {
-    background: #222;
-    color: white;
-}
-
-.small-text {
-    color: #777;
-    font-size: 13px;
+.toast.bad{
+    border-left:4px solid #ef4444;
 }
 
 /* RESPONSIVE */
 
-@media(max-width: 1000px) {
-    .stats {
-        grid-template-columns: repeat(2, 1fr);
+@media(max-width:1100px){
+    .stats{
+        grid-template-columns:repeat(3,1fr);
     }
 }
 
-@media(max-width: 600px) {
-    .navbar {
-        padding: 0 12px;
+@media(max-width:850px){
+    .sidebar{
+        width:205px;
     }
 
-    .navbar h2 {
-        font-size: 18px;
+    .main{
+        margin-left:205px;
+        width:calc(100% - 205px);
     }
 
-    .container {
-        padding: 12px;
+    .stats{
+        grid-template-columns:repeat(2,1fr);
     }
 
-    .stats {
-        grid-template-columns: 1fr;
+    .search{
+        width:180px;
     }
 
-    .stat-card strong {
-        font-size: 24px;
+    .cards-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:650px){
+    .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+        padding:12px;
     }
 
-    .section {
-        padding: 14px;
+    .logo{
+        padding-bottom:12px;
+    }
+
+    .nav{
+        display:flex;
+        overflow:auto;
+        padding-top:8px;
+    }
+
+    .nav button{
+        min-width:max-content;
+    }
+
+    .admin-user{
+        display:none;
+    }
+
+    .main{
+        margin-left:0;
+        width:100%;
+    }
+
+    .topbar{
+        height:auto;
+        padding:14px 16px;
+    }
+
+    .search{
+        display:none;
+    }
+
+    .content{
+        padding:18px 14px;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .cards-grid{
+        grid-template-columns:1fr;
     }
 }
 </style>
+
+<style>
+/* Admin Dashboard - improved readable font sizes */
+body {
+    font-size: 17px;
+}
+
+.sidebar {
+    font-size: 17px;
+}
+
+.nav button {
+    font-size: 17px;
+}
+
+.nav-icon {
+    font-size: 19px;
+}
+
+.content-section {
+    font-size: 17px;
+}
+
+table {
+    font-size: 15px;
+}
+
+button {
+    font-size: 15px;
+}
+
+input,
+textarea,
+select {
+    font-size: 15px;
+}
+
+label {
+    font-size: 15px;
+}
+
+.card,
+.stat-card,
+.modal,
+.notification {
+    font-size: 17px;
+}
+</style>
+
+
+<style id="admin-readable-fonts">
+/* ===== FoodHub Admin - readable standard font ===== */
+
+body,
+body * {
+    font-family: Arial, sans-serif;
+}
+
+body {
+    font-size: 17px !important;
+}
+
+.sidebar {
+    font-size: 17px !important;
+}
+
+.nav button {
+    font-size: 17px !important;
+}
+
+.nav-icon {
+    font-size: 20px !important;
+}
+
+.content-section {
+    font-size: 17px !important;
+}
+
+.content-section p,
+.content-section span,
+.content-section label,
+.content-section td,
+.content-section th {
+    font-size: 15px !important;
+}
+
+table {
+    font-size: 15px !important;
+}
+
+table th,
+table td {
+    font-size: 15px !important;
+}
+
+button {
+    font-size: 15px !important;
+}
+
+input,
+textarea,
+select {
+    font-size: 15px !important;
+}
+
+label {
+    font-size: 15px !important;
+}
+
+.stat-card,
+.card,
+.modal,
+.notification {
+    font-size: 16px !important;
+}
+
+.stat-card h2,
+.card h2 {
+    font-size: 24px !important;
+}
+
+.stat-card h3,
+.card h3 {
+    font-size: 19px !important;
+}
+
+.modal h2,
+.modal h3 {
+    font-size: 21px !important;
+}
+
+small {
+    font-size: 13px !important;
+}
+</style>
+
+
+<style id="admin-order-cards">
+.admin-order-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
+    gap:22px;
+    margin-top:10px;
+}
+
+.admin-order-card{
+    background:#ffffff;
+    border-radius:18px;
+    padding:20px;
+    border:1px solid #e5e7ef;
+    box-shadow:0 8px 24px rgba(17,22,63,.10);
+}
+
+.admin-order-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:15px;
+    padding-bottom:16px;
+    border-bottom:1px solid #eceef4;
+}
+
+.admin-order-title{
+    font-size:20px !important;
+    font-weight:800;
+    color:#11163f;
+}
+
+.admin-order-customer{
+    margin-top:8px;
+    font-size:14px !important;
+    line-height:1.5;
+    color:#555d70;
+}
+
+.admin-order-total{
+    font-size:21px !important;
+    font-weight:800;
+    color:#e63946;
+    white-space:nowrap;
+}
+
+.admin-order-items{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin:18px 0;
+}
+
+.admin-food-item{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:10px;
+    border-radius:13px;
+    background:#f7f8fb;
+}
+
+.admin-food-image{
+    width:68px;
+    height:68px;
+    object-fit:cover;
+    border-radius:11px;
+    flex-shrink:0;
+}
+
+.admin-food-info{
+    flex:1;
+    min-width:0;
+}
+
+.admin-food-name{
+    font-size:15px !important;
+    font-weight:700;
+    color:#20243a;
+}
+
+.admin-food-details{
+    margin-top:5px;
+    font-size:13px !important;
+    color:#737b8d;
+}
+
+.admin-food-price{
+    font-size:15px !important;
+    font-weight:700;
+    color:#11163f;
+    white-space:nowrap;
+}
+
+.admin-order-footer{
+    padding-top:15px;
+    border-top:1px solid #eceef4;
+}
+
+.admin-order-status-area{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    flex-wrap:wrap;
+}
+
+.admin-order-status-area .status-select{
+    min-width:145px;
+}
+
+.admin-no-items{
+    padding:15px;
+    text-align:center;
+    color:#777;
+}
+
+@media(max-width:700px){
+    .admin-order-grid{
+        grid-template-columns:1fr;
+    }
+
+    .admin-order-card{
+        padding:15px;
+    }
+
+    .admin-order-header{
+        flex-direction:column;
+    }
+
+    .admin-order-total{
+        font-size:19px !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
 
-<!-- LOGIN PAGE -->
+<!-- LOGIN -->
 
-<div id="loginPage">
+<div id="loginScreen">
 
-    <div class="login-box">
+    <div class="login-card">
 
-        <h1>🍔 FoodHub</h1>
+        <div class="brand">
+            <div class="brand-icon">🍴</div>
+            <h1>FoodHub Admin</h1>
+            <p>Sign in to manage your food ordering application</p>
+        </div>
 
-        <p>Admin Dashboard</p>
+        <div id="loginError" class="error hidden"></div>
 
         <form id="loginForm">
 
-            <input
-                type="email"
-                id="email"
-                placeholder="Admin Email"
-                value="demo@foodhub.com"
-                required
-            >
+            <div class="field">
+                <label>Email</label>
+                <input
+                    id="email"
+                    type="email"
+                    value="demo@foodhub.com"
+                    required
+                >
+            </div>
 
-            <input
-                type="password"
-                id="password"
-                placeholder="Password"
-                value="Demo@12345"
-                required
-            >
+            <div class="field">
+                <label>Password</label>
+                <input
+                    id="password"
+                    type="password"
+                    value="Demo@12345"
+                    required
+                >
+            </div>
 
             <button class="login-btn" type="submit">
-                Login
+                Sign in to Dashboard
             </button>
 
         </form>
 
-        <div id="loginError" class="error"></div>
-
     </div>
 
 </div>
 
 
-<!-- DASHBOARD -->
+<!-- APP -->
 
-<div id="dashboard">
+<div id="app">
 
-    <div class="navbar">
+    <aside class="sidebar">
 
-        <h2>🍔 FoodHub Admin</h2>
+        <div class="logo">
+            <div class="logo-mark">🍴</div>
+            <strong>Food<span>Hub</span> Admin</strong>
+        </div>
 
-        <button class="logout" onclick="logout()">
-            Logout
-        </button>
+        <nav class="nav">
 
-    </div>
+            <button class="active" data-section="dashboard">
+                <span class="nav-icon">⌂</span>
+                Dashboard
+            </button>
 
+            <button data-section="users">
+                <span class="nav-icon">♙</span>
+                Users
+            </button>
 
-    <div class="container">
+            <button data-section="orders">
+                <span class="nav-icon">🛍</span>
+                Orders
+            </button>
 
-        <div class="welcome">
+            <button data-section="foods">
+                <span class="nav-icon">🍽</span>
+                Foods
+            </button>
 
-            <h1>Dashboard</h1>
+            <button data-section="reports">
+                <span class="nav-icon">▤</span>
+                Reports
+            </button>
 
-            <p class="small-text">
-                Manage FoodHub customers, orders and food items.
-            </p>
+            <button data-section="messages">
+                <span class="nav-icon">✉</span>
+                Messages
+            </button>
+
+            <button data-section="settings">
+                <span class="nav-icon">⚙</span>
+                Settings
+            </button>
+
+        </nav>
+
+        <div class="admin-user">
+
+            <div class="avatar">A</div>
+
+            <div>
+                <b>Admin User</b>
+                <small id="adminEmail">demo@foodhub.com</small>
+            </div>
 
         </div>
 
+    </aside>
 
-        <!-- STATS -->
 
-        <div class="stats">
+    <main class="main">
 
-            <div class="stat-card">
-                <h3>Total Users</h3>
-                <strong id="totalUsers">0</strong>
+        <header class="topbar">
+
+            <div class="page-title">
+                <h1 id="pageTitle">Dashboard</h1>
+                <p>Manage FoodHub customers, orders and food items.</p>
             </div>
 
-            <div class="stat-card">
-                <h3>Total Orders</h3>
-                <strong id="totalOrders">0</strong>
-            </div>
+            <div class="top-actions">
 
-            <div class="stat-card">
-                <h3>Total Foods</h3>
-                <strong id="totalFoods">0</strong>
-            </div>
+                <div class="search">
+                    <span>⌕</span>
+                    <input
+                        id="globalSearch"
+                        placeholder="Search anything..."
+                    >
+                </div>
 
-            <div class="stat-card">
-                <h3>Total Sales</h3>
-                <strong id="totalSales">₹0</strong>
-            </div>
+                <button class="icon-btn" title="Notifications">
+                    🔔
+                </button>
 
-            <div class="stat-card">
-                <h3>Pending Orders</h3>
-                <strong id="pendingOrders">0</strong>
-            </div>
-
-        </div>
-
-
-        <!-- USERS -->
-
-        <div class="section">
-
-            <div class="section-header">
-
-                <h2>👥 Users</h2>
-
-                <button class="refresh" onclick="loadUsers()">
-                    Refresh
+                <button class="logout" id="logoutBtn">
+                    ↪ Logout
                 </button>
 
             </div>
 
-            <div class="table-wrapper">
+        </header>
 
-                <table>
 
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                        </tr>
-                    </thead>
+        <div class="content">
 
-                    <tbody id="usersTable"></tbody>
+            <!-- DASHBOARD -->
 
-                </table>
+            <section id="dashboard" class="section active">
 
-            </div>
+                <div class="stats">
+
+                    <div class="stat" style="--accent:#8b5cf6">
+                        <div class="stat-top">
+                            <div>
+                                <div class="stat-label">Total Users</div>
+                                <div class="stat-value" id="totalUsers">0</div>
+                                <div class="stat-sub">All registered users</div>
+                            </div>
+                            <div class="stat-icon">♙</div>
+                        </div>
+                    </div>
+
+                    <div class="stat" style="--accent:#2196f3">
+                        <div class="stat-top">
+                            <div>
+                                <div class="stat-label">Total Orders</div>
+                                <div class="stat-value" id="totalOrders">0</div>
+                                <div class="stat-sub">All orders placed</div>
+                            </div>
+                            <div class="stat-icon">🛍</div>
+                        </div>
+                    </div>
+
+                    <div class="stat" style="--accent:#25a55b">
+                        <div class="stat-top">
+                            <div>
+                                <div class="stat-label">Total Foods</div>
+                                <div class="stat-value" id="totalFoods">0</div>
+                                <div class="stat-sub">Foods available</div>
+                            </div>
+                            <div class="stat-icon">🍴</div>
+                        </div>
+                    </div>
+
+                    <div class="stat" style="--accent:#ff9800">
+                        <div class="stat-top">
+                            <div>
+                                <div class="stat-label">Total Sales</div>
+                                <div class="stat-value" id="totalSales">₹0.00</div>
+                                <div class="stat-sub">Overall sales</div>
+                            </div>
+                            <div class="stat-icon">₹</div>
+                        </div>
+                    </div>
+
+                    <div class="stat" style="--accent:#ec4899">
+                        <div class="stat-top">
+                            <div>
+                                <div class="stat-label">Pending Orders</div>
+                                <div class="stat-value" id="pendingOrders">0</div>
+                                <div class="stat-sub">Orders in progress</div>
+                            </div>
+                            <div class="stat-icon">♧</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id="dashUsers"></div>
+                <div id="dashOrders"></div>
+
+            </section>
+
+
+            <!-- USERS -->
+
+            <section id="users" class="section">
+                <div id="usersPanel"></div>
+            </section>
+
+
+            <!-- ORDERS -->
+
+            <section id="orders" class="section">
+                <div id="ordersPanel"></div>
+            </section>
+
+
+            <!-- FOODS -->
+
+            <section id="foods" class="section">
+                <div id="foodsPanel"></div>
+            </section>
+
+
+            <!-- REPORTS -->
+
+            <section id="reports" class="section">
+
+                <div class="panel">
+
+                    <div class="panel-head">
+                        <div class="panel-title">
+                            <i>▤</i>
+                            Reports
+                        </div>
+                    </div>
+
+                    <div class="empty">
+                        Sales and order statistics are available from the dashboard.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- SETTINGS -->
+
+            <section id="settings" class="section">
+
+                <div class="panel">
+
+                    <div class="panel-head">
+                        <div class="panel-title">
+                            <i>⚙</i>
+                            Settings
+                        </div>
+                    </div>
+
+                    <div class="empty">
+                        FoodHub administration settings.
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section id="messages" class="section">
+
+                <div class="section-header">
+                    <div>
+                        <h2>Messages</h2>
+                        <p>View and manage customer messages.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+
+                    <div class="card-header">
+                        <h3>Customer Messages</h3>
+                    </div>
+
+                    <div id="messagesList">
+                        <div class="empty-state">
+                            <div style="font-size:40px;">✉</div>
+                            <h3>No messages yet</h3>
+                            <p>Customer messages will appear here.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
 
         </div>
 
-
-        <!-- ORDERS -->
-
-        <div class="section">
-
-            <div class="section-header">
-
-                <h2>🛒 Orders</h2>
-
-                <button class="refresh" onclick="loadOrders()">
-                    Refresh
-                </button>
-
-            </div>
-
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-                            <th>ID</th>
-                            <th>Customer</th>
-                            <th>Items</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Update</th>
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="ordersTable"></tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-
-        <!-- FOODS -->
-
-        <div class="section">
-
-            <div class="section-header">
-
-                <h2>🍔 Foods</h2>
-
-                <button class="refresh" onclick="loadFoods()">
-                    Refresh
-                </button>
-
-            </div>
-
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Available</th>
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="foodsTable"></tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </div>
+    </main>
 
 </div>
+
+
+<div id="toast" class="toast hidden"></div>
 
 
 <script>
 
+/* IMPORTANT: Correct backend URL */
 const BACKEND_URL = "http://18.60.55.13:30050";
 
-let isAdmin = false;
+let users = [];
+let orders = [];
+let foods = [];
+
+function $(id){
+    return document.getElementById(id);
+}
+
+
+/* TOAST */
+
+function showToast(message, ok=true){
+
+    const t = $("toast");
+
+    t.textContent = message;
+
+    t.className = "toast " + (ok ? "ok" : "bad");
+
+    setTimeout(function(){
+        t.classList.add("hidden");
+    },2600);
+}
+
+
+/* HTML ESCAPE */
+
+function esc(value){
+
+    return String(value ?? "").replace(
+        /[&<>"']/g,
+        function(m){
+            return {
+                "&":"&amp;",
+                "<":"&lt;",
+                ">":"&gt;",
+                '"':"&quot;",
+                "'":"&#39;"
+            }[m];
+        }
+    );
+}
+
+
+/* STATUS CLASS */
+
+function statusClass(status){
+
+    if(status === "Out for Delivery"){
+        return "s-Out";
+    }
+
+    return "s-" + String(status || "").replace(/\s/g,"-");
+}
+
+
+/* STATUS OPTIONS */
+
+function statusOptions(current){
+
+    const list = [
+        "Pending",
+        "Confirmed",
+        "Preparing",
+        "Out for Delivery",
+        "Delivered",
+        "Cancelled"
+    ];
+
+    return list.map(function(status){
+
+        return `
+            <option value="${esc(status)}"
+                ${status === current ? "selected" : ""}>
+                ${esc(status)}
+            </option>
+        `;
+
+    }).join("");
+}
+
+
+/* API */
+
+async function api(path, options={}){
+
+    options.credentials = "include";
+
+    options.headers = Object.assign(
+        {
+            "Content-Type":"application/json",
+            "X-Admin-Role":"admin"
+        },
+        options.headers || {}
+    );
+
+    const response = await fetch(
+        BACKEND_URL + path,
+        options
+    );
+
+    let data = {};
+
+    try{
+        data = await response.json();
+    }
+    catch(error){
+        data = {};
+    }
+
+    if(!response.ok || data.success === false){
+        throw new Error(
+            data.message || ("HTTP " + response.status)
+        );
+    }
+
+    return data;
+}
 
 
 /* LOGIN */
 
-document
-.getElementById("loginForm")
-.addEventListener("submit", async function(event) {
+async function login(email,password){
 
-    event.preventDefault();
-
-    const email =
-        document.getElementById("email").value.trim();
-
-    const password =
-        document.getElementById("password").value;
-
-    const error =
-        document.getElementById("loginError");
-
-    error.textContent = "";
-
-    try {
-
-        const response = await fetch(
-            BACKEND_URL + "/admin/login",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (!data.success) {
-
-            error.textContent =
-                data.message || "Login failed";
-
-            return;
+    const data = await api(
+        "/admin/login",
+        {
+            method:"POST",
+            body:JSON.stringify({
+                email:email,
+                password:password
+            })
         }
+    );
 
-        isAdmin = true;
-
-        sessionStorage.setItem(
-            "foodhub_admin",
-            "true"
+    if(data.success === false){
+        throw new Error(
+            data.message || "Login failed"
         );
-
-        document.getElementById("loginPage").style.display =
-            "none";
-
-        document.getElementById("dashboard").style.display =
-            "block";
-
-        loadDashboard();
-
-    } catch (err) {
-
-        error.textContent =
-            "Backend connection failed";
-
-        console.error(err);
     }
 
-});
+    localStorage.setItem(
+        "foodhub_admin_email",
+        email
+    );
 
+    $("adminEmail").textContent = email;
 
-/* LOAD DASHBOARD */
+    $("loginScreen").classList.add("hidden");
 
-async function loadDashboard() {
+    $("app").classList.add("show");
 
-    await loadStats();
-    await loadUsers();
-    await loadOrders();
-    await loadFoods();
-
+    await loadAll();
 }
+
+
+/* LOGIN FORM */
+
+$("loginForm").addEventListener(
+    "submit",
+    async function(event){
+
+        event.preventDefault();
+
+        $("loginError").classList.add("hidden");
+
+        try{
+
+            await login(
+                $("email").value.trim(),
+                $("password").value
+            );
+
+        }
+        catch(error){
+
+            $("loginError").textContent =
+                error.message;
+
+            $("loginError").classList.remove("hidden");
+        }
+    }
+);
 
 
 /* STATS */
 
-async function loadStats() {
+async function loadStats(){
 
-    try {
+    const data = await api("/admin/stats");
 
-        const response = await fetch(
-            BACKEND_URL + "/admin/stats",
-            {
-                headers: {
-                    "X-Admin-Role": "admin"
-                }
-            }
-        );
+    const stats = data.stats || {};
 
-        const data = await response.json();
+    $("totalUsers").textContent =
+        stats.total_users ?? 0;
 
-        if (!data.success) return;
+    $("totalOrders").textContent =
+        stats.total_orders ?? 0;
 
-        document.getElementById("totalUsers").textContent =
-            data.stats.total_users;
+    $("totalFoods").textContent =
+        stats.total_foods ?? 0;
 
-        document.getElementById("totalOrders").textContent =
-            data.stats.total_orders;
+    $("totalSales").textContent =
+        "₹" +
+        Number(stats.total_sales || 0).toFixed(2);
 
-        document.getElementById("totalFoods").textContent =
-            data.stats.total_foods;
+    $("pendingOrders").textContent =
+        stats.pending_orders ?? 0;
+}
 
-        document.getElementById("totalSales").textContent =
-            "₹" + Number(data.stats.total_sales).toFixed(2);
 
-        document.getElementById("pendingOrders").textContent =
-            data.stats.pending_orders;
+/* PANEL */
 
-    } catch (error) {
+function panel(title,icon,body,refresh){
 
-        console.error(error);
+    return `
+        <div class="panel">
 
-    }
+            <div class="panel-head">
 
+                <div class="panel-title">
+                    <i>${icon}</i>
+                    ${title}
+                </div>
+
+                <button
+                    class="refresh"
+                    onclick="${refresh}">
+                    ⟳ Refresh
+                </button>
+
+            </div>
+
+            ${body}
+
+        </div>
+    `;
 }
 
 
 /* USERS */
 
-async function loadUsers() {
+async function loadUsers(){
 
-    const table =
-        document.getElementById("usersTable");
+    const data = await api("/admin/users");
 
-    try {
+    users = data.users || [];
 
-        const response = await fetch(
-            BACKEND_URL + "/admin/users",
-            {
-                headers: {
-                    "X-Admin-Role": "admin"
-                }
-            }
-        );
+    renderUsers("dashUsers",true);
 
-        const data = await response.json();
+    renderUsers("usersPanel",false);
+}
 
-        table.innerHTML = "";
 
-        if (!data.success) return;
+function renderUsers(target,limit){
 
-        data.users.forEach(user => {
+    const list = limit
+        ? users.slice(0,7)
+        : users;
 
-            table.innerHTML += `
-                <tr>
-                    <td>${user.id}</td>
-                    <td>${escapeHtml(user.name)}</td>
-                    <td>${escapeHtml(user.email)}</td>
-                    <td>${escapeHtml(user.role)}</td>
-                </tr>
-            `;
+    let body;
 
-        });
+    if(list.length === 0){
 
-    } catch (error) {
-
-        console.error(error);
+        body = `
+            <div class="empty">
+                No users found
+            </div>
+        `;
 
     }
+    else{
 
+        body = `
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined Date</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        ${list.map(function(user){
+
+                            const role =
+                                user.role || "customer";
+
+                            return `
+                                <tr>
+
+                                    <td>
+                                        <b>${esc(user.id)}</b>
+                                    </td>
+
+                                    <td>
+                                        <b>${esc(user.name)}</b>
+                                    </td>
+
+                                    <td>
+                                        ${esc(user.email)}
+                                    </td>
+
+                                    <td>
+
+                                        <span class="status ${
+                                            role === "admin"
+                                            ? "s-Preparing"
+                                            : "s-Delivered"
+                                        }">
+
+                                            ${esc(role)}
+
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        ${esc(
+                                            user.created_at ||
+                                            user.joined_date ||
+                                            "-"
+                                        )}
+                                    </td>
+
+                                </tr>
+                            `;
+
+                        }).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        `;
+    }
+
+    $(target).innerHTML =
+        panel(
+            "Users",
+            "♙",
+            body,
+            "loadUsers()"
+        );
 }
 
 
 /* ORDERS */
 
-async function loadOrders() {
+async function loadOrders(){
 
-    const table =
-        document.getElementById("ordersTable");
+    const data = await api("/admin/orders");
 
-    try {
+    orders = data.orders || [];
 
-        const response = await fetch(
-            BACKEND_URL + "/admin/orders",
-            {
-                headers: {
-                    "X-Admin-Role": "admin"
-                }
-            }
-        );
+    renderOrders("dashOrders",true);
 
-        const data = await response.json();
+    renderOrders("ordersPanel",false);
+}
 
-        table.innerHTML = "";
 
-        if (!data.success) return;
+function renderOrders(target,limit){
 
-        data.orders.forEach(order => {
+    const list = limit
+        ? orders.slice(0,6)
+        : orders;
 
-            table.innerHTML += `
-                <tr>
+    let body;
 
-                    <td>${order.id}</td>
+    if(list.length === 0){
 
-                    <td>
-                        <strong>
-                            ${escapeHtml(order.customer_name || "")}
-                        </strong>
-                        <br>
-                        <span class="small-text">
-                            ${escapeHtml(order.customer_email)}
-                        </span>
-                    </td>
+        body = `
+            <div class="empty">
+                No orders found
+            </div>
+        `;
 
-                    <td>
-                        ${escapeHtml(order.items)}
-                    </td>
+    } else {
 
-                    <td>
-                        ₹${Number(order.total).toFixed(2)}
-                    </td>
+        body = `
+            <div class="admin-order-grid">
 
-                    <td>
-                        <span class="status">
-                            ${escapeHtml(order.status || "Pending")}
-                        </span>
-                    </td>
+                ${list.map(function(order){
 
-                    <td>
+                    let items = [];
 
-                        <select id="status-${order.id}">
+                    try {
+                        let raw = String(order.items || "")
+                            .replace(/'/g, '"')
+                            .replace(/([{,]\s*)name:/g, '$1"name":')
+                            .replace(/([{,]\s*)price:/g, '$1"price":')
+                            .replace(/([{,]\s*)quantity:/g, '$1"quantity":');
 
-                            <option>Pending</option>
-                            <option>Confirmed</option>
-                            <option>Preparing</option>
-                            <option>Out for Delivery</option>
-                            <option>Delivered</option>
-                            <option>Cancelled</option>
+                        items = JSON.parse(raw);
+                    } catch(e) {
 
-                        </select>
+                        try {
+                            items = Function(
+                                "return " + order.items
+                            )();
+                        } catch(error) {
+                            items = [];
+                        }
 
-                        <button
-                            class="update-btn"
-                            onclick="updateOrder(${order.id})"
-                        >
-                            Update
-                        </button>
+                    }
 
-                    </td>
+                    if(!Array.isArray(items)){
+                        items = [];
+                    }
 
-                </tr>
-            `;
+                    return `
+                        <div class="admin-order-card">
 
-            document.getElementById(
-                "status-" + order.id
-            ).value = order.status || "Pending";
+                            <div class="admin-order-header">
 
-        });
+                                <div>
+                                    <div class="admin-order-title">
+                                        🛒 Order #${esc(order.id)}
+                                    </div>
 
-    } catch (error) {
+                                    <div class="admin-order-customer">
+                                        <b>${esc(order.customer_name)}</b>
+                                        <br>
+                                        <span>
+                                            ${esc(order.customer_email)}
+                                        </span>
+                                    </div>
+                                </div>
 
-        console.error(error);
+                                <div class="admin-order-total">
+                                    ₹${Number(
+                                        order.total || 0
+                                    ).toFixed(2)}
+                                </div>
 
+                            </div>
+
+                            <div class="admin-order-items">
+
+                                ${
+                                    items.length
+                                    ? items.map(function(item){
+
+                                        const food =
+                                            foods.find(function(f){
+                                                return String(f.name).trim()
+                                                    .toLowerCase()
+                                                    === String(item.name || "").trim()
+                                                    .toLowerCase();
+                                            });
+
+                                        const image =
+                                            food && food.image
+                                            ? food.image
+                                            : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c";
+
+                                        const quantity =
+                                            Number(item.quantity || 1);
+
+                                        const price =
+                                            Number(item.price || 0);
+
+                                        return `
+                                            <div class="admin-food-item">
+
+                                                <img
+                                                    class="admin-food-image"
+                                                    src="${esc(image)}"
+                                                    alt="${esc(item.name || "Food")}"
+                                                    onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c'"
+                                                >
+
+                                                <div class="admin-food-info">
+
+                                                    <div class="admin-food-name">
+                                                        ${esc(item.name || "Food")}
+                                                    </div>
+
+                                                    <div class="admin-food-details">
+                                                        Qty: ${quantity}
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="admin-food-price">
+                                                    ₹${price.toFixed(2)}
+                                                </div>
+
+                                            </div>
+                                        `;
+
+                                    }).join("")
+                                    : `
+                                        <div class="admin-no-items">
+                                            No food items found
+                                        </div>
+                                    `
+                                }
+
+                            </div>
+
+                            <div class="admin-order-footer">
+
+                                <div class="admin-order-status-area">
+
+                                    <span class="
+                                        status
+                                        ${statusClass(order.status)}
+                                    ">
+                                        ${esc(order.status)}
+                                    </span>
+
+                                    <select
+                                        class="status-select"
+                                        id="status-${order.id}"
+                                    >
+                                        ${statusOptions(order.status)}
+                                    </select>
+
+                                    <button
+                                        class="update-btn"
+                                        onclick="updateOrder(${Number(order.id)})"
+                                    >
+                                        Update
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    `;
+
+                }).join("")}
+
+            </div>
+        `;
     }
 
+    $(target).innerHTML =
+        panel(
+            "Orders",
+            "🛒",
+            body,
+            "loadOrders()"
+        );
+}
+/* FOODS */
+
+async function loadFoods(){
+
+    const data = await api("/admin/foods");
+
+    foods = data.foods || [];
+
+    renderFoods();
+}
+
+
+function renderFoods(){
+
+    let body;
+
+    if(foods.length === 0){
+
+        body = `
+            <div class="empty">
+                No foods found
+            </div>
+        `;
+
+    }
+    else{
+
+        body = `
+            <div class="cards-grid">
+
+                ${foods.map(function(food){
+
+                    return `
+                        <div class="food-card">
+
+                            <div class="food-icon">
+                                🍽️
+                            </div>
+
+                            <h3>
+                                ${esc(
+                                    food.name ||
+                                    food.food_name ||
+                                    "Food Item"
+                                )}
+                            </h3>
+
+                            <p>
+                                ${esc(
+                                    food.description ||
+                                    "Food item available in FoodHub"
+                                )}
+                            </p>
+
+                            <div class="price">
+                                ₹${Number(
+                                    food.price || 0
+                                ).toFixed(2)}
+                            </div>
+
+                        </div>
+                    `;
+
+                }).join("")}
+
+            </div>
+        `;
+    }
+
+    $("foodsPanel").innerHTML =
+        panel(
+            "Foods",
+            "🍴",
+            body,
+            "loadFoods()"
+        );
 }
 
 
 /* UPDATE ORDER */
 
-async function updateOrder(orderId) {
+async function updateOrder(id){
+
+    const select =
+        $("status-" + id);
+
+    if(!select){
+        showToast(
+            "Status selector not found",
+            false
+        );
+        return;
+    }
 
     const status =
-        document.getElementById(
-            "status-" + orderId
-        ).value;
+        select.value;
 
-    try {
+    try{
 
-        const response = await fetch(
-            BACKEND_URL +
-            "/admin/orders/" +
-            orderId +
-            "/status",
+        const data = await api(
+            "/admin/orders/" + id + "/status",
             {
-                method: "PUT",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Admin-Role": "admin"
-                },
-
-                body: JSON.stringify({
-                    status: status
+                method:"PUT",
+                body:JSON.stringify({
+                    status:status
                 })
             }
         );
 
-        const data = await response.json();
+        showToast(
+            data.message ||
+            "Order status updated",
+            true
+        );
 
-        if (data.success) {
-
-            alert("Order status updated");
-
-            loadOrders();
-            loadStats();
-
-        } else {
-
-            alert(data.message || "Update failed");
-
-        }
-
-    } catch (error) {
-
-        alert("Backend connection failed");
-
-        console.error(error);
+        await Promise.all([
+            loadStats(),
+            loadOrders()
+        ]);
 
     }
+    catch(error){
 
+        showToast(
+            error.message,
+            false
+        );
+    }
 }
 
 
-/* FOODS */
+/* LOAD EVERYTHING */
 
-async function loadFoods() {
+async function loadAll(){
 
-    const table =
-        document.getElementById("foodsTable");
+    try{
 
-    try {
+        await Promise.all([
+            loadStats(),
+            loadUsers(),
+            loadOrders(),
+            loadFoods()
+        ]);
 
-        const response = await fetch(
-            BACKEND_URL + "/admin/foods",
-            {
-                headers: {
-                    "X-Admin-Role": "admin"
+    }
+    catch(error){
+
+        showToast(
+            error.message,
+            false
+        );
+    }
+}
+
+
+/* NAVIGATION */
+
+document
+    .querySelectorAll(".nav button")
+    .forEach(function(button){
+
+        button.addEventListener(
+            "click",
+            function(){
+
+                document
+                    .querySelectorAll(".nav button")
+                    .forEach(function(item){
+                        item.classList.remove("active");
+                    });
+
+                button.classList.add("active");
+
+                document
+                    .querySelectorAll(".section")
+                    .forEach(function(section){
+                        section.classList.remove("active");
+                    });
+
+                const section =
+                    $(button.dataset.section);
+
+                if(section){
+                    section.classList.add("active");
                 }
+
+                $("pageTitle").textContent =
+                    button.textContent.trim();
+
+                window.scrollTo({
+                    top:0,
+                    behavior:"smooth"
+                });
             }
         );
 
-        const data = await response.json();
-
-        table.innerHTML = "";
-
-        if (!data.success) return;
-
-        data.foods.forEach(food => {
-
-            table.innerHTML += `
-                <tr>
-
-                    <td>${food.id}</td>
-
-                    <td>
-                        ${escapeHtml(food.name)}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(food.category)}
-                    </td>
-
-                    <td>
-                        ₹${Number(food.price).toFixed(2)}
-                    </td>
-
-                    <td>
-                        ${food.is_available ? "✅ Yes" : "❌ No"}
-                    </td>
-
-                </tr>
-            `;
-
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-    }
-
-}
+    });
 
 
 /* LOGOUT */
 
-function logout() {
+$("logoutBtn").onclick =
+    function(){
 
-    sessionStorage.removeItem("foodhub_admin");
+        localStorage.removeItem(
+            "foodhub_admin_email"
+        );
 
-    isAdmin = false;
+        $("app").classList.remove("show");
 
-    document.getElementById("dashboard").style.display =
-        "none";
-
-    document.getElementById("loginPage").style.display =
-        "flex";
-
-}
+        $("loginScreen").classList.remove("hidden");
+    };
 
 
-/* BASIC HTML ESCAPE */
+/* SEARCH */
 
-function escapeHtml(value) {
+$("globalSearch").addEventListener(
+    "input",
+    function(event){
 
-    const div = document.createElement("div");
+        const query =
+            event.target.value.toLowerCase();
 
-    div.textContent = value ?? "";
+        document
+            .querySelectorAll("tbody tr")
+            .forEach(function(row){
 
-    return div.innerHTML;
+                row.style.display =
+                    row.textContent
+                        .toLowerCase()
+                        .includes(query)
+                    ? ""
+                    : "none";
+            });
+    }
+);
 
-}
+
+/* AUTO REFRESH */
+
+setInterval(
+    function(){
+
+        if(
+            $("app").classList.contains("show")
+        ){
+            loadStats().catch(function(){});
+        }
+
+    },
+    30000
+);
 
 </script>
 

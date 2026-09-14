@@ -1237,6 +1237,333 @@ def admin_update_order_status(order_id):
         }), 500
 
 
+
+@app.route("/admin/messages", methods=["GET"])
+def admin_messages():
+    if not admin_required():
+        return jsonify({
+            "success": False,
+            "message": "Admin access required"
+        }), 403
+
+    conn = None
+    cursor = None
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT
+                id,
+                name,
+                email,
+                message,
+                created_at
+            FROM messages
+            ORDER BY created_at DESC
+        """)
+
+        messages = cursor.fetchall()
+
+        return jsonify({
+            "success": True,
+            "messages": messages
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+@app.route("/admin/messages/<int:message_id>/reply", methods=["POST"])
+def admin_reply_message(message_id):
+    if not admin_required():
+        return jsonify({
+            "success": False,
+            "message": "Admin access required"
+        }), 403
+
+    data = request.get_json(silent=True) or {}
+    reply = str(data.get("reply") or "").strip()
+
+    if not reply:
+        return jsonify({
+            "success": False,
+            "message": "Reply is required"
+        }), 400
+
+    conn = None
+    cursor = None
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT id, name, email
+            FROM messages
+            WHERE id = %s
+        """, (message_id,))
+
+        customer = cursor.fetchone()
+
+        if not customer:
+            return jsonify({
+                "success": False,
+                "message": "Message not found"
+            }), 404
+
+        # Store admin reply as a notification for the customer.
+        cursor.execute("""
+            INSERT INTO notifications
+                (customer_email, order_id, message, status)
+            VALUES
+                (%s, NULL, %s, 'unread')
+        """, (
+            customer["email"],
+            reply
+        ))
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Reply sent successfully"
+        })
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+
+@app.route("/admin/foods", methods=["POST"])
+def admin_add_food():
+
+    if not admin_required():
+        return jsonify({
+            "success": False,
+            "message": "Admin access required"
+        }), 403
+
+    data = request.get_json() or {}
+
+    name = data.get("name", "").strip()
+    description = data.get("description", "").strip()
+    price = data.get("price")
+    category = data.get("category", "").strip()
+    image = data.get("image", "").strip()
+    is_available = data.get("is_available", 1)
+
+    if not name or price is None or not category:
+        return jsonify({
+            "success": False,
+            "message": "Name, price and category are required"
+        }), 400
+
+    conn = None
+    cursor = None
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO foods
+            (name, description, price, category, image, is_available)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (
+            name,
+            description,
+            price,
+            category,
+            image,
+            is_available
+        ))
+
+        conn.commit()
+        food_id = cursor.lastrowid
+
+        return jsonify({
+            "success": True,
+            "message": "Food added successfully",
+            "food_id": food_id
+        }), 201
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+
+        print("ADMIN ADD FOOD ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": "Failed to add food",
+            "error": str(e)
+        }), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+@app.route("/admin/foods/<int:food_id>", methods=["PUT"])
+def admin_update_food(food_id):
+
+    if not admin_required():
+        return jsonify({
+            "success": False,
+            "message": "Admin access required"
+        }), 403
+
+    data = request.get_json() or {}
+
+    name = data.get("name", "").strip()
+    description = data.get("description", "").strip()
+    price = data.get("price")
+    category = data.get("category", "").strip()
+    image = data.get("image", "").strip()
+    is_available = data.get("is_available", 1)
+
+    if not name or price is None or not category:
+        return jsonify({
+            "success": False,
+            "message": "Name, price and category are required"
+        }), 400
+
+    conn = None
+    cursor = None
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE foods
+            SET name=%s,
+                description=%s,
+                price=%s,
+                category=%s,
+                image=%s,
+                is_available=%s
+            WHERE id=%s
+        """, (
+            name,
+            description,
+            price,
+            category,
+            image,
+            is_available,
+            food_id
+        ))
+
+        if cursor.rowcount == 0:
+            return jsonify({
+                "success": False,
+                "message": "Food not found"
+            }), 404
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Food updated successfully"
+        })
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+
+        print("ADMIN UPDATE FOOD ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": "Failed to update food",
+            "error": str(e)
+        }), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+@app.route("/admin/foods/<int:food_id>", methods=["DELETE"])
+def admin_delete_food(food_id):
+
+    if not admin_required():
+        return jsonify({
+            "success": False,
+            "message": "Admin access required"
+        }), 403
+
+    conn = None
+    cursor = None
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "DELETE FROM foods WHERE id=%s",
+            (food_id,)
+        )
+
+        if cursor.rowcount == 0:
+            return jsonify({
+                "success": False,
+                "message": "Food not found"
+            }), 404
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Food deleted successfully"
+        })
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+
+        print("ADMIN DELETE FOOD ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": "Failed to delete food",
+            "error": str(e)
+        }), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
 @app.route("/admin/foods", methods=["GET"])
 def admin_foods():
 
