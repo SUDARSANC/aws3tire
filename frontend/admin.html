@@ -1316,6 +1316,180 @@ let users = [];
 let orders = [];
 let foods = [];
 
+let messages = [];
+
+
+function openReplyBox(id, email, name){
+    const box = document.getElementById("replyBox-" + id);
+    if(box){
+        box.style.display = "block";
+        const text = document.getElementById("replyText-" + id);
+        if(text) text.focus();
+    }
+}
+
+function closeReplyBox(id){
+    const box = document.getElementById("replyBox-" + id);
+    if(box){
+        box.style.display = "none";
+    }
+}
+
+async function sendReply(id){
+    const textBox = document.getElementById("replyText-" + id);
+    const reply = textBox ? textBox.value.trim() : "";
+
+    if(!reply){
+        showToast("Please enter a reply", false);
+        return;
+    }
+
+    try{
+        const data = await api(
+            "/admin/messages/" + id + "/reply",
+            {
+                method:"POST",
+                body:JSON.stringify({
+                    reply:reply
+                })
+            }
+        );
+
+        if(!data.success){
+            throw new Error(data.message || "Reply failed");
+        }
+
+        showToast("Reply sent successfully", true);
+        textBox.value = "";
+        closeReplyBox(id);
+
+    }catch(error){
+        console.error("Reply error:", error);
+        showToast(error.message || "Unable to send reply", false);
+    }
+}
+
+async function loadMessages(){
+    const box = document.getElementById("messagesList");
+
+    try {
+        const data = await api("/admin/messages");
+
+        if (!data.success || !data.messages || data.messages.length === 0) {
+            box.innerHTML = `
+                <div class="empty-state">
+                    <div style="font-size:40px;">✉</div>
+                    <h3>No messages yet</h3>
+                    <p>Customer messages will appear here.</p>
+                </div>`;
+            return;
+        }
+
+        messages = data.messages;
+
+        box.innerHTML = messages.map(m => `
+            <div class="message-card" style="
+                padding:18px;
+                margin-bottom:15px;
+                border:1px solid #e5e7eb;
+                border-radius:12px;
+                background:#fff;
+            ">
+                <div style="display:flex;justify-content:space-between;gap:15px;">
+                    <div>
+                        <strong>${m.name || "Customer"}</strong>
+                        <div style="font-size:13px;color:#777;">
+                            ${m.email || ""}
+                        </div>
+                    </div>
+                    <div style="font-size:12px;color:#888;">
+                        ${m.created_at || ""}
+                    </div>
+                </div>
+
+                <div style="
+                    margin-top:12px;
+                    padding:12px;
+                    background:#f7f7f7;
+                    border-radius:8px;
+                ">
+                    ${m.message || ""}
+                </div>
+
+                <div style="margin-top:14px;">
+                    <button
+                        onclick="openReplyBox(${m.id}, '${(m.email || "").replace(/'/g, "\\'")}', '${(m.name || "Customer").replace(/'/g, "\\'")}')"
+                        style="
+                            border:none;
+                            padding:10px 18px;
+                            border-radius:8px;
+                            background:linear-gradient(135deg,#ff6b35,#e63946);
+                            color:white;
+                            font-weight:600;
+                            cursor:pointer;
+                        ">
+                        ↩ Reply
+                    </button>
+                </div>
+
+                <div id="replyBox-${m.id}" style="display:none;margin-top:15px;">
+                    <textarea
+                        id="replyText-${m.id}"
+                        placeholder="Write your reply..."
+                        style="
+                            width:100%;
+                            min-height:90px;
+                            padding:12px;
+                            border:1px solid #ddd;
+                            border-radius:10px;
+                            resize:vertical;
+                            box-sizing:border-box;
+                        "></textarea>
+
+                    <div style="margin-top:10px;display:flex;gap:10px;">
+                        <button
+                            onclick="sendReply(${m.id})"
+                            style="
+                                border:none;
+                                padding:9px 18px;
+                                border-radius:8px;
+                                background:#16a34a;
+                                color:white;
+                                font-weight:600;
+                                cursor:pointer;
+                            ">
+                            Send Reply
+                        </button>
+
+                        <button
+                            onclick="closeReplyBox(${m.id})"
+                            style="
+                                border:1px solid #ddd;
+                                padding:9px 18px;
+                                border-radius:8px;
+                                background:white;
+                                cursor:pointer;
+                            ">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+    } catch (error) {
+        console.error("Messages loading error:", error);
+
+        box.innerHTML = `
+            <div class="empty-state">
+                <div style="font-size:40px;">⚠</div>
+                <h3>Unable to load messages</h3>
+                <p>Please try again.</p>
+            </div>`;
+    }
+}
+
+
 function $(id){
     return document.getElementById(id);
 }
@@ -1893,8 +2067,7 @@ function renderFoods(){
             </div>
         `;
 
-    }
-    else{
+    } else {
 
         body = `
             <div class="cards-grid">
@@ -1904,9 +2077,19 @@ function renderFoods(){
                     return `
                         <div class="food-card">
 
-                            <div class="food-icon">
-                                🍽️
-                            </div>
+                            <img
+                                src="${esc(food.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80')}"
+                                alt="${esc(food.name || 'Food')}"
+                                style="
+                                    width:100%;
+                                    height:190px;
+                                    object-fit:cover;
+                                    border-radius:14px;
+                                    display:block;
+                                    margin-bottom:15px;
+                                "
+                                onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';"
+                            >
 
                             <h3>
                                 ${esc(
@@ -1923,10 +2106,59 @@ function renderFoods(){
                                 )}
                             </p>
 
+                            <div style="
+                                display:inline-block;
+                                margin-top:8px;
+                                padding:5px 10px;
+                                border-radius:20px;
+                                background:#eef2ff;
+                                color:#4338ca;
+                                font-size:13px;
+                                font-weight:600;
+                            ">
+                                ${esc(food.category || "Food")}
+                            </div>
+
                             <div class="price">
                                 ₹${Number(
                                     food.price || 0
                                 ).toFixed(2)}
+                            </div>
+
+                            <div style="
+                                display:flex;
+                                gap:10px;
+                                margin-top:15px;
+                            ">
+
+                                <button
+                                    onclick="editFood(${food.id})"
+                                    style="
+                                        border:none;
+                                        padding:9px 16px;
+                                        border-radius:8px;
+                                        background:#2563eb;
+                                        color:white;
+                                        font-weight:600;
+                                        cursor:pointer;
+                                    ">
+                                    ✏ Edit
+                                </button>
+
+                                <button
+                                    onclick="deleteFood(${food.id})"
+                                    style="
+                                        border:none;
+                                        padding:9px 16px;
+                                        border-radius:8px;
+                                        background:#dc2626;
+                                        color:white;
+                                        font-weight:600;
+                                        cursor:pointer;
+                                    ">
+                                    🗑 Delete
+                                </button>
+
                             </div>
 
                         </div>
@@ -1945,6 +2177,201 @@ function renderFoods(){
             body,
             "loadFoods()"
         );
+}
+
+
+/* EDIT FOOD */
+
+function editFood(id){
+
+    const food =
+        foods.find(function(item){
+            return Number(item.id) === Number(id);
+        });
+
+    if(!food){
+        showToast("Food not found", false);
+        return;
+    }
+
+    const name =
+        prompt("Food name:", food.name || "");
+
+    if(name === null){
+        return;
+    }
+
+    const description =
+        prompt(
+            "Description:",
+            food.description || ""
+        );
+
+    if(description === null){
+        return;
+    }
+
+    const price =
+        prompt(
+            "Price:",
+            food.price || ""
+        );
+
+    if(price === null){
+        return;
+    }
+
+    const category =
+        prompt(
+            "Category:",
+            food.category || ""
+        );
+
+    if(category === null){
+        return;
+    }
+
+    const image =
+        prompt(
+            "Image URL:",
+            food.image || ""
+        );
+
+    if(image === null){
+        return;
+    }
+
+    updateFood(
+        id,
+        name,
+        description,
+        price,
+        category,
+        image,
+        food.is_available ?? 1
+    );
+}
+
+
+/* UPDATE FOOD */
+
+async function updateFood(
+    id,
+    name,
+    description,
+    price,
+    category,
+    image,
+    is_available
+){
+
+    try{
+
+        const data = await api(
+            "/admin/foods/" + id,
+            {
+                method:"PUT",
+                body:JSON.stringify({
+                    name:name.trim(),
+                    description:description.trim(),
+                    price:Number(price),
+                    category:category.trim(),
+                    image:image.trim(),
+                    is_available:is_available
+                })
+            }
+        );
+
+        if(!data.success){
+            throw new Error(
+                data.message ||
+                "Food update failed"
+            );
+        }
+
+        showToast(
+            "Food updated successfully",
+            true
+        );
+
+        await loadFoods();
+        await loadStats();
+
+    }
+    catch(error){
+
+        console.error(
+            "UPDATE FOOD ERROR:",
+            error
+        );
+
+        showToast(
+            error.message ||
+            "Unable to update food",
+            false
+        );
+    }
+}
+
+
+/* DELETE FOOD */
+
+async function deleteFood(id){
+
+    const food =
+        foods.find(function(item){
+            return Number(item.id) === Number(id);
+        });
+
+    const foodName =
+        food
+        ? (food.name || food.food_name || "this food")
+        : "this food";
+
+    if(!confirm(
+        "Delete " + foodName + "?"
+    )){
+        return;
+    }
+
+    try{
+
+        const data = await api(
+            "/admin/foods/" + id,
+            {
+                method:"DELETE"
+            }
+        );
+
+        if(!data.success){
+            throw new Error(
+                data.message ||
+                "Food deletion failed"
+            );
+        }
+
+        showToast(
+            "Food deleted successfully",
+            true
+        );
+
+        await loadFoods();
+        await loadStats();
+
+    }
+    catch(error){
+
+        console.error(
+            "DELETE FOOD ERROR:",
+            error
+        );
+
+        showToast(
+            error.message ||
+            "Unable to delete food",
+            false
+        );
+    }
 }
 
 
@@ -2053,6 +2480,14 @@ document
 
                 if(section){
                     section.classList.add("active");
+
+                    if(button.dataset.section === "messages"){
+                        loadMessages();
+                    }
+
+                    if(button.dataset.section === "foods"){
+                        loadFoods();
+                    }
                 }
 
                 $("pageTitle").textContent =
