@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  clusterIP: None
+  selector:
+    app: mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-db
+spec:
+  serviceName: mysql-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: ip-172-31-27-178
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - mysqladmin ping -h 127.0.0.1 -uroot -p"$MYSQL_ROOT_PASSWORD"
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc

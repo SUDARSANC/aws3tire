@@ -6,3 +6,4 @@ venv/
 foodhub-frontend.zip
 *_backup*.html
 *_before_theme*.html
+database/mysql-secret.yaml
