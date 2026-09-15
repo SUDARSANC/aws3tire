@@ -1082,6 +1082,11 @@ small {
                 Messages
             </button>
 
+            <button data-section="ratings">
+                <span class="nav-icon">⭐</span>
+                Ratings
+            </button>
+
             <button data-section="settings">
                 <span class="nav-icon">⚙</span>
                 Settings
@@ -1297,6 +1302,33 @@ small {
 
             </section>
 
+            <section id="ratings" class="section">
+
+                <div class="section-header">
+                    <div>
+                        <h2>Ratings</h2>
+                        <p>View customer ratings and feedback.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+
+                    <div class="card-header">
+                        <h3>Customer Ratings</h3>
+                    </div>
+
+                    <div id="ratingsList">
+                        <div class="empty-state">
+                            <div style="font-size:40px;">⭐</div>
+                            <h3>No ratings yet</h3>
+                            <p>Customer ratings will appear here.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
         </div>
 
     </main>
@@ -1310,7 +1342,7 @@ small {
 <script>
 
 /* IMPORTANT: Correct backend URL */
-const BACKEND_URL = "http://18.60.55.13:30050";
+const BACKEND_URL = window.location.protocol + "//" + window.location.hostname + ":30050";
 
 let users = [];
 let orders = [];
@@ -1489,6 +1521,120 @@ async function loadMessages(){
     }
 }
 
+async function loadRatings(){
+
+    const box = document.getElementById("ratingsList");
+
+    if(!box){
+        return;
+    }
+
+    box.innerHTML = `
+        <div class="empty-state">
+            <div style="font-size:40px;">⭐</div>
+            <h3>Loading ratings...</h3>
+            <p>Please wait.</p>
+        </div>
+    `;
+
+    try{
+
+        const data = await api("/admin/ratings");
+
+        if(
+            !data.success ||
+            !Array.isArray(data.ratings) ||
+            data.ratings.length === 0
+        ){
+            box.innerHTML = `
+                <div class="empty-state">
+                    <div style="font-size:40px;">⭐</div>
+                    <h3>No ratings yet</h3>
+                    <p>Customer ratings will appear here.</p>
+                </div>
+            `;
+            return;
+        }
+
+        box.innerHTML = data.ratings.map(function(rating){
+
+            const stars = "⭐".repeat(
+                Math.max(
+                    0,
+                    Math.min(
+                        5,
+                        Number(rating.rating) || 0
+                    )
+                )
+            );
+
+            return `
+                <div style="
+                    padding:18px;
+                    margin-bottom:15px;
+                    border:1px solid #e5e7eb;
+                    border-radius:12px;
+                    background:#fff;
+                ">
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        gap:15px;
+                        align-items:flex-start;
+                    ">
+
+                        <div>
+                            <strong>
+                                ${rating.customer_email || "Customer"}
+                            </strong>
+
+                            <div style="
+                                margin-top:7px;
+                                font-size:18px;
+                            ">
+                                ${stars}
+                            </div>
+                        </div>
+
+                        <div style="
+                            font-size:12px;
+                            color:#888;
+                        ">
+                            ${rating.created_at || ""}
+                        </div>
+
+                    </div>
+
+                    <div style="
+                        margin-top:12px;
+                        padding:12px;
+                        background:#f7f7f7;
+                        border-radius:8px;
+                        color:#333;
+                    ">
+                        ${rating.comment || "No comment"}
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+
+    }catch(error){
+
+        console.error("Ratings loading error:", error);
+
+        box.innerHTML = `
+            <div class="empty-state">
+                <div style="font-size:40px;">⚠</div>
+                <h3>Unable to load ratings</h3>
+                <p>Please try again.</p>
+            </div>
+        `;
+    }
+}
+
 
 function $(id){
     return document.getElementById(id);
@@ -1501,8 +1647,12 @@ function showToast(message, ok=true){
 
     const t = $("toast");
 
-    t.textContent = message;
+    if(!t){
+        console.error("Toast element not found");
+        return;
+    }
 
+    t.textContent = message;
     t.className = "toast " + (ok ? "ok" : "bad");
 
     setTimeout(function(){
@@ -2055,6 +2205,73 @@ async function loadFoods(){
 }
 
 
+
+async function saveNewFood(event){
+
+    event.preventDefault();
+
+    const name = $("newFoodName").value.trim();
+    const description = $("newFoodDescription").value.trim();
+    const price = Number($("newFoodPrice").value);
+    const category = $("newFoodCategory").value.trim();
+    const food_type = $("newFoodType").value;
+    const image = $("newFoodImage").value.trim();
+    const is_available = Number($("newFoodAvailable").value);
+
+    if(!name || !description || !category || !Number.isFinite(price)){
+        showToast("Please fill all required fields", false);
+        return;
+    }
+
+    try{
+
+        const data = await api(
+            "/admin/foods",
+            {
+                method:"POST",
+                body:JSON.stringify({
+                    name:name,
+                    description:description,
+                    price:price,
+                    category:category,
+                    food_type:food_type,
+                    image:image,
+                    is_available:is_available
+                })
+            }
+        );
+
+        if(!data.success){
+            throw new Error(
+                data.message || "Food creation failed"
+            );
+        }
+
+        showToast(
+            "Food added successfully",
+            true
+        );
+
+        await loadFoods();
+        await loadStats();
+
+    }
+    catch(error){
+
+        console.error(
+            "ADD FOOD ERROR:",
+            error
+        );
+
+        showToast(
+            error.message ||
+            "Unable to add food",
+            false
+        );
+    }
+}
+
+
 function renderFoods(){
 
     let body;
@@ -2067,26 +2284,172 @@ function renderFoods(){
             </div>
         `;
 
-    } else {
+    }
+    else{
 
         body = `
+            <div style="
+                background:white;
+                border-radius:16px;
+                padding:24px;
+                margin-bottom:25px;
+                box-shadow:0 8px 25px rgba(0,0,0,.08);
+            ">
+
+                <h2 style="
+                    margin:0 0 6px;
+                    color:#18203f;
+                ">
+                    ➕ Add New Food
+                </h2>
+
+                <p style="
+                    margin:0 0 20px;
+                    color:#777;
+                ">
+                    Enter food details and add a new item to FoodHub.
+                </p>
+
+                <form id="addFoodForm">
+
+                    <div style="
+                        display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:15px;
+                    ">
+
+                        <input
+                            id="newFoodName"
+                            type="text"
+                            placeholder="Food Name"
+                            required
+                            style="
+                                padding:13px;
+                                border:1px solid #ddd;
+                                border-radius:9px;
+                            "
+                        >
+
+                        <input
+                            id="newFoodPrice"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="Price"
+                            required
+                            style="
+                                padding:13px;
+                                border:1px solid #ddd;
+                                border-radius:9px;
+                            "
+                        >
+
+                        <input
+                            id="newFoodCategory"
+                            type="text"
+                            placeholder="Category"
+                            required
+                            style="
+                                padding:13px;
+                                border:1px solid #ddd;
+                                border-radius:9px;
+                            "
+                        >
+
+                        <select
+                            id="newFoodType"
+                            style="
+                                padding:13px;
+                                border:1px solid #ddd;
+                                border-radius:9px;
+                            "
+                        >
+                            <option value="Veg">🥬 Veg</option>
+                            <option value="Non-Veg">🍗 Non-Veg</option>
+                        </select>
+
+                        <select
+                            id="newFoodAvailable"
+                            style="
+                                padding:13px;
+                                border:1px solid #ddd;
+                                border-radius:9px;
+                            "
+                        >
+                            <option value="1">Available</option>
+                            <option value="0">Unavailable</option>
+                        </select>
+
+                        <textarea
+                            id="newFoodDescription"
+                            rows="3"
+                            placeholder="Food Description"
+                            required
+                            style="
+                                grid-column:1/-1;
+                                padding:13px;
+                                border:1px solid #ddd;
+                                border-radius:9px;
+                                resize:vertical;
+                            "
+                        ></textarea>
+
+                        <input
+                            id="newFoodImage"
+                            type="url"
+                            placeholder="Image URL"
+                            style="
+                                grid-column:1/-1;
+                                padding:13px;
+                                border:1px solid #ddd;
+                                border-radius:9px;
+                            "
+                        >
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        style="
+                            margin-top:18px;
+                            border:none;
+                            padding:13px 25px;
+                            border-radius:10px;
+                            background:#2563eb;
+                            color:white;
+                            font-weight:800;
+                            cursor:pointer;
+                        "
+                    >
+                        ➕ Add Food
+                    </button>
+
+                </form>
+
+            </div>
+
             <div class="cards-grid">
 
                 ${foods.map(function(food){
+
+                    const available =
+                        food.is_available === 1 ||
+                        food.is_available === true ||
+                        food.is_available === "1";
 
                     return `
                         <div class="food-card">
 
                             <img
                                 src="${esc(food.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80')}"
-                                alt="${esc(food.name || 'Food')}"
+                                alt="${esc(food.name || food.food_name || 'Food')}"
                                 style="
                                     width:100%;
-                                    height:190px;
+                                    height:180px;
                                     object-fit:cover;
-                                    border-radius:14px;
+                                    border-radius:12px;
+                                    margin-bottom:14px;
                                     display:block;
-                                    margin-bottom:15px;
                                 "
                                 onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80';"
                             >
@@ -2099,25 +2462,25 @@ function renderFoods(){
                                 )}
                             </h3>
 
+                            <div style="
+                                display:inline-block;
+                                margin:4px 0 8px;
+                                padding:5px 10px;
+                                border-radius:20px;
+                                background:${(food.food_type || "Veg") === "Non-Veg" ? "#fee2e2" : "#dcfce7"};
+                                color:${(food.food_type || "Veg") === "Non-Veg" ? "#dc2626" : "#16a34a"};
+                                font-size:12px;
+                                font-weight:800;
+                            ">
+                                ${(food.food_type || "Veg") === "Non-Veg" ? "🍗 Non-Veg" : "🥬 Veg"}
+                            </div>
+
                             <p>
                                 ${esc(
                                     food.description ||
                                     "Food item available in FoodHub"
                                 )}
                             </p>
-
-                            <div style="
-                                display:inline-block;
-                                margin-top:8px;
-                                padding:5px 10px;
-                                border-radius:20px;
-                                background:#eef2ff;
-                                color:#4338ca;
-                                font-size:13px;
-                                font-weight:600;
-                            ">
-                                ${esc(food.category || "Food")}
-                            </div>
 
                             <div class="price">
                                 ₹${Number(
@@ -2126,38 +2489,64 @@ function renderFoods(){
                             </div>
 
                             <div style="
+                                margin-top:10px;
+                                font-size:12px;
+                                font-weight:700;
+                                color:${available ? '#16a34a' : '#dc2626'};
+                            ">
+                                ${available ? '● Available' : '● Unavailable'}
+                            </div>
+
+                            <div style="
                                 display:flex;
-                                gap:10px;
-                                margin-top:15px;
+                                gap:8px;
+                                margin-top:14px;
                             ">
 
-                                <button
-                                    onclick="editFood(${food.id})"
-                                    style="
-                                        border:none;
-                                        padding:9px 16px;
-                                        border-radius:8px;
-                                        background:#2563eb;
-                                        color:white;
-                                        font-weight:600;
-                                        cursor:pointer;
-                                    ">
-                                    ✏ Edit
-                                </button>
+                                <div style="
+                                    display:grid;
+                                    grid-template-columns:1fr 1fr;
+                                    gap:10px;
+                                    margin-top:16px;
+                                ">
 
-                                <button
-                                    onclick="deleteFood(${food.id})"
-                                    style="
-                                        border:none;
-                                        padding:9px 16px;
-                                        border-radius:8px;
-                                        background:#dc2626;
-                                        color:white;
-                                        font-weight:600;
-                                        cursor:pointer;
-                                    ">
-                                    🗑 Delete
-                                </button>
+                                    <button
+                                        type="button"
+                                        onclick="editFood(${Number(food.id)})"
+                                        style="
+                                            border:none;
+                                            padding:12px 8px;
+                                            border-radius:10px;
+                                            background:#2563eb;
+                                            color:white;
+                                            font-size:13px;
+                                            font-weight:800;
+                                            cursor:pointer;
+                                            box-shadow:0 4px 10px rgba(37,99,235,.25);
+                                        "
+                                    >
+                                        ✏️ Edit
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onclick="deleteFood(${Number(food.id)})"
+                                        style="
+                                            border:none;
+                                            padding:12px 8px;
+                                            border-radius:10px;
+                                            background:#ef4444;
+                                            color:white;
+                                            font-size:13px;
+                                            font-weight:800;
+                                            cursor:pointer;
+                                            box-shadow:0 4px 10px rgba(239,68,68,.25);
+                                        "
+                                    >
+                                        🗑️ Delete
+                                    </button>
+
+                                </div>
 
                             </div>
 
@@ -2177,6 +2566,15 @@ function renderFoods(){
             body,
             "loadFoods()"
         );
+
+    const addFoodForm = $("addFoodForm");
+
+    if(addFoodForm){
+        addFoodForm.addEventListener(
+            "submit",
+            saveNewFood
+        );
+    }
 }
 
 
@@ -2184,76 +2582,160 @@ function renderFoods(){
 
 function editFood(id){
 
-    const food =
-        foods.find(function(item){
-            return Number(item.id) === Number(id);
-        });
+    const food = foods.find(function(item){
+        return Number(item.id) === Number(id);
+    });
 
     if(!food){
         showToast("Food not found", false);
         return;
     }
 
-    const name =
-        prompt("Food name:", food.name || "");
+    let form = document.getElementById("editFoodForm");
 
-    if(name === null){
-        return;
+    if(form){
+        form.remove();
     }
 
-    const description =
-        prompt(
-            "Description:",
-            food.description || ""
-        );
+    form = document.createElement("div");
+    form.id = "editFoodForm";
 
-    if(description === null){
-        return;
+    form.innerHTML = `
+        <div style="
+            background:white;
+            padding:25px;
+            margin:20px 0;
+            border-radius:15px;
+            box-shadow:0 5px 20px rgba(0,0,0,.12);
+        ">
+
+            <h2 style="margin-top:0;color:#18203f;">
+                ✏️ Edit Food
+            </h2>
+
+            <input id="editFoodName"
+                value="${esc(food.name || food.food_name || "")}"
+                placeholder="Food Name"
+                style="width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;">
+
+            <textarea id="editFoodDescription"
+                placeholder="Description"
+                style="width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;">${esc(food.description || "")}</textarea>
+
+            <input id="editFoodPrice"
+                type="number"
+                value="${Number(food.price || 0)}"
+                placeholder="Price"
+                style="width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;">
+
+            <input id="editFoodCategory"
+                value="${esc(food.category || "")}"
+                placeholder="Category"
+                style="width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;">
+
+            <input id="editFoodImage"
+                value="${esc(food.image || "")}"
+                placeholder="Image URL"
+                style="width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;">
+
+            <select id="editFoodType"
+                style="width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:8px;">
+                <option value="Veg" ${((food.food_type || "Veg") === "Veg") ? "selected" : ""}>🥬 Veg</option>
+                <option value="Non-Veg" ${((food.food_type || "Veg") === "Non-Veg") ? "selected" : ""}>🍗 Non-Veg</option>
+            </select>
+
+            <select id="editFoodAvailable"
+                style="width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:8px;">
+                <option value="1" ${Number(food.is_available) === 1 ? "selected" : ""}>Available</option>
+                <option value="0" ${Number(food.is_available) === 0 ? "selected" : ""}>Unavailable</option>
+            </select>
+
+            <div style="margin-top:15px;display:flex;gap:10px;">
+
+                <button type="button"
+                    onclick="saveEditedFood(${Number(id)})"
+                    style="
+                        border:none;
+                        padding:12px 22px;
+                        border-radius:9px;
+                        background:#2563eb;
+                        color:white;
+                        font-weight:800;
+                        cursor:pointer;
+                    ">
+                    💾 Save
+                </button>
+
+                <button type="button"
+                    onclick="document.getElementById('editFoodForm').remove()"
+                    style="
+                        border:none;
+                        padding:12px 22px;
+                        border-radius:9px;
+                        background:#6b7280;
+                        color:white;
+                        font-weight:800;
+                        cursor:pointer;
+                    ">
+                    ✖ Cancel
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+    const panel = document.getElementById("foodsPanel");
+
+    if(panel){
+        panel.prepend(form);
+        form.scrollIntoView({
+            behavior:"smooth",
+            block:"start"
+        });
     }
-
-    const price =
-        prompt(
-            "Price:",
-            food.price || ""
-        );
-
-    if(price === null){
-        return;
-    }
-
-    const category =
-        prompt(
-            "Category:",
-            food.category || ""
-        );
-
-    if(category === null){
-        return;
-    }
-
-    const image =
-        prompt(
-            "Image URL:",
-            food.image || ""
-        );
-
-    if(image === null){
-        return;
-    }
-
-    updateFood(
-        id,
-        name,
-        description,
-        price,
-        category,
-        image,
-        food.is_available ?? 1
-    );
 }
 
+async function saveEditedFood(id){
 
-/* UPDATE FOOD */
+    try{
+
+        const data = await api(
+            "/admin/foods/" + id,
+            {
+                method:"PUT",
+                body:JSON.stringify({
+                    name:document.getElementById("editFoodName").value.trim(),
+                    description:document.getElementById("editFoodDescription").value.trim(),
+                    price:Number(document.getElementById("editFoodPrice").value),
+                    category:document.getElementById("editFoodCategory").value.trim(),
+                    food_type:document.getElementById("editFoodType").value,
+                    image:document.getElementById("editFoodImage").value.trim(),
+                    is_available:Number(document.getElementById("editFoodAvailable").value)
+                })
+            }
+        );
+
+        if(!data.success){
+            throw new Error(data.message || "Food update failed");
+        }
+
+        showToast("Food updated successfully", true);
+
+        await loadFoods();
+        await loadStats();
+
+    }catch(error){
+
+        console.error("EDIT FOOD ERROR:", error);
+
+        showToast(
+            error.message || "Unable to update food",
+            false
+        );
+    }
+}
+
 
 async function updateFood(
     id,
@@ -2375,28 +2857,71 @@ async function deleteFood(id){
 }
 
 
+
+
 /* UPDATE ORDER */
+
+
+
+
 
 async function updateOrder(id){
 
-    const select =
-        $("status-" + id);
+    const currentOrder = orders.find(function(order){
+        return Number(order.id) === Number(id);
+    });
 
-    if(!select){
-        showToast(
-            "Status selector not found",
-            false
-        );
+    const currentStatus = currentOrder
+        ? String(currentOrder.status || "").trim()
+        : "";
+
+    const selects = Array.from(
+        document.querySelectorAll(".status-select")
+    ).filter(function(select){
+        return select.id === "status-" + id;
+    });
+
+    if(!selects.length){
+        showToast("Status selector not found", false);
         return;
     }
 
-    const status =
-        select.value;
+    /*
+     * The dashboard and Orders page both contain
+     * the same order. Find the dropdown that the user
+     * actually changed.
+     */
+    let select = selects.find(function(item){
+        return String(item.value || "").trim() !== currentStatus;
+    });
+
+    /*
+     * If nothing changed, use the first dropdown.
+     */
+    if(!select){
+        select = selects[0];
+    }
+
+    const status = String(select.value || "").trim();
+
+    const allowed = [
+        "Pending",
+        "Confirmed",
+        "Preparing",
+        "Out for Delivery",
+        "Delivered",
+        "Cancelled"
+    ];
+
+    if(!allowed.includes(status)){
+        showToast("Invalid order status", false);
+        return;
+    }
 
     try{
 
         const data = await api(
-            "/admin/orders/" + id + "/status",
+            "/admin/orders/" + Number(id) + "/status",
             {
                 method:"PUT",
                 body:JSON.stringify({
@@ -2405,22 +2930,47 @@ async function updateOrder(id){
             }
         );
 
+        if(!data.success){
+            throw new Error(
+                data.message || "Order status update failed"
+            );
+        }
+
+        /* Update local order */
+        if(currentOrder){
+            currentOrder.status = status;
+        }
+
+        /* Update BOTH dropdowns */
+        selects.forEach(function(item){
+            item.value = status;
+        });
+
+        /* Re-render both locations */
+        renderOrders("dashOrders", true);
+        renderOrders("ordersPanel", false);
+
         showToast(
-            data.message ||
-            "Order status updated",
+            "Order #" + Number(id) +
+            " updated to " + status,
             true
         );
 
-        await Promise.all([
-            loadStats(),
-            loadOrders()
-        ]);
+        /* Confirm from backend */
+        await loadOrders();
+        await loadStats();
 
     }
     catch(error){
 
+        console.error(
+            "ORDER STATUS UPDATE ERROR:",
+            error
+        );
+
         showToast(
-            error.message,
+            error.message ||
+            "Unable to update order status",
             false
         );
     }
@@ -2483,6 +3033,10 @@ document
 
                     if(button.dataset.section === "messages"){
                         loadMessages();
+                    }
+
+                    if(button.dataset.section === "ratings"){
+                        loadRatings();
                     }
 
                     if(button.dataset.section === "foods"){

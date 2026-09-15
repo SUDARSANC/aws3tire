@@ -23,7 +23,8 @@ CORS(
     app,
     origins=[
     "http://18.60.55.13:30080",
-    "http://18.60.251.24:30080"],
+    "http://18.60.251.24:30080",
+    "http://18.61.84.133:30080"],
     supports_credentials=True
 )
 
@@ -884,6 +885,61 @@ def submit_rating():
         }), 500
 
 
+
+# =========================================================
+# ADMIN RATINGS
+# =========================================================
+
+@app.route("/admin/ratings", methods=["GET"])
+def admin_ratings():
+
+    if not admin_required():
+        return jsonify({
+            "success": False,
+            "message": "Admin access required"
+        }), 403
+
+    conn = None
+    cursor = None
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT
+                id,
+                customer_email,
+                rating,
+                comment,
+                created_at
+            FROM ratings
+            ORDER BY created_at DESC
+        """)
+
+        ratings = cursor.fetchall()
+
+        return jsonify({
+            "success": True,
+            "ratings": ratings
+        })
+
+    except Exception as e:
+
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
+
+
 # =========================================================
 # ADMIN API
 # =========================================================
@@ -1372,6 +1428,7 @@ def admin_add_food():
     description = data.get("description", "").strip()
     price = data.get("price")
     category = data.get("category", "").strip()
+    food_type = data.get("food_type", "Veg").strip()
     image = data.get("image", "").strip()
     is_available = data.get("is_available", 1)
 
@@ -1390,13 +1447,14 @@ def admin_add_food():
 
         cursor.execute("""
             INSERT INTO foods
-            (name, description, price, category, image, is_available)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            (name, description, price, category, food_type, image, is_available)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (
             name,
             description,
             price,
             category,
+            food_type,
             image,
             is_available
         ))
@@ -1444,6 +1502,7 @@ def admin_update_food(food_id):
     description = data.get("description", "").strip()
     price = data.get("price")
     category = data.get("category", "").strip()
+    food_type = data.get("food_type", "Veg").strip()
     image = data.get("image", "").strip()
     is_available = data.get("is_available", 1)
 
@@ -1466,6 +1525,7 @@ def admin_update_food(food_id):
                 description=%s,
                 price=%s,
                 category=%s,
+                food_type=%s,
                 image=%s,
                 is_available=%s
             WHERE id=%s
@@ -1474,6 +1534,7 @@ def admin_update_food(food_id):
             description,
             price,
             category,
+            food_type,
             image,
             is_available,
             food_id
@@ -1580,7 +1641,7 @@ def admin_foods():
         cursor.execute(
             """
             SELECT id, name, description, price,
-                   category, image, is_available
+                   category, food_type, image, is_available
             FROM foods
             ORDER BY id DESC
             """

@@ -883,6 +883,56 @@ padding: 40px 15px;
 }
 }
 
+
+.order-food-items{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-top:10px;
+}
+
+.order-food-item{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:12px;
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+}
+
+.order-food-image{
+    width:85px;
+    height:70px;
+    object-fit:cover;
+    border-radius:10px;
+    flex-shrink:0;
+}
+
+.order-food-info{
+    min-width:0;
+}
+
+.order-food-name{
+    font-size:16px;
+    font-weight:700;
+    color:#111827;
+}
+
+.order-food-description{
+    margin-top:4px;
+    font-size:13px;
+    color:#6b7280;
+    line-height:1.4;
+}
+
+.order-food-price{
+    margin-top:6px;
+    font-size:13px;
+    font-weight:600;
+    color:#111827;
+}
+
 </style>
 
 <style>
@@ -1629,11 +1679,7 @@ Uses the SAME public IP/hostname that opened this page.
 Backend must be available on NodePort 30050.
 ========================================================= */
 
-const BACKEND_URL =
-window.location.protocol +
-"//" +
-window.location.hostname +
-":30050";
+const BACKEND_URL = window.location.protocol + "//" + window.location.hostname + ":30050";
 
 
 /* =========================================================
@@ -2554,17 +2600,30 @@ document
 CHECKOUT
 ========================================================= */
 
-function openCheckout() {
+async function openCheckout() {
 
-if (
-cart.length === 0
-) {
+if (cart.length === 0) {
 
 showToast(
 "Your cart is empty"
 );
 
 return;
+
+}
+
+/* Make sure the current login session is loaded */
+if (!currentUser) {
+
+try {
+
+await checkLogin();
+
+} catch (error) {
+
+console.error("CHECKOUT SESSION CHECK:", error);
+
+}
 
 }
 
@@ -2579,6 +2638,18 @@ showToast(
 );
 
 return;
+
+}
+
+/* Clear any old checkout message */
+const checkoutMessage =
+document.getElementById("checkoutMessage");
+
+if (checkoutMessage) {
+
+checkoutMessage.textContent = "";
+
+checkoutMessage.className = "message";
 
 }
 
@@ -2996,9 +3067,7 @@ currentUser.role || ""
 "admin"
 ) {
 
-window.location.href =
-window.location.origin +
-"/admin.html";
+window.location.href = window.location.origin + "/admin.html";
 
 return;
 
@@ -3156,42 +3225,29 @@ async function checkLogin() {
 
 try {
 
-const result =
-await api(
-"/me"
-);
+const result = await api("/me");
 
-console.log(
-"SESSION RESULT:",
-result
-);
+console.log("SESSION RESULT:", result);
 
 if (
+result &&
 result.ok &&
 result.data &&
 result.data.user
 ) {
 
-currentUser =
-result.data.user;
+currentUser = result.data.user;
+
+console.log("CURRENT USER:", currentUser);
 
 updateNavbar();
 
-/*
-If admin opens index.html directly,
-redirect to admin page.
-*/
-
 if (
-String(
-currentUser.role || ""
-).toLowerCase() ===
-"admin"
+String(currentUser.role || "").toLowerCase() === "admin"
 ) {
 
 window.location.href =
-window.location.origin +
-"/admin.html";
+window.location.origin + "/admin.html";
 
 return;
 
@@ -3199,38 +3255,32 @@ return;
 
 loadProfile();
 
-firstNotificationCheck =
-true;
-
-lastNotificationIds =
-[];
+firstNotificationCheck = true;
+lastNotificationIds = [];
 
 startLiveNotifications();
 
-} else {
-
-currentUser =
-null;
-
-updateNavbar();
+return true;
 
 }
+
+currentUser = null;
+updateNavbar();
+
+return false;
 
 } catch (error) {
 
-console.log(
-"No active session"
-);
+console.error("SESSION CHECK ERROR:", error);
 
-currentUser =
-null;
-
+currentUser = null;
 updateNavbar();
 
-}
+return false;
 
 }
 
+}
 
 /* =========================================================
 LOGOUT
@@ -3366,6 +3416,8 @@ return;
 
 }
 
+await ensureFoodsLoaded();
+
 hideMainSections();
 
 const section =
@@ -3447,14 +3499,11 @@ getStatusClass(
 status
 );
 
-const itemsText =
-formatOrderItems(
-order.items
-);
-
 const canCancel =
 status === "Pending" ||
-status === "Accepted";
+status === "Confirmed" ||
+status === "Preparing" ||
+status === "Out for Delivery";
 
 const card =
 document.createElement(
@@ -3482,7 +3531,93 @@ ${escapeHtml(status)}
 
 <div>
 <strong>Items:</strong>
-${escapeHtml(itemsText)}
+
+<div class="order-food-items">
+
+${
+(() => {
+
+    let orderItems = order.items;
+
+    if (typeof orderItems === "string") {
+        try {
+            orderItems = JSON.parse(orderItems);
+        } catch (error) {
+            try {
+                orderItems = JSON.parse(
+                    orderItems.replace(/'/g, '"')
+                );
+            } catch (secondError) {
+                console.error(
+                    "ORDER ITEMS PARSE ERROR:",
+                    orderItems
+                );
+                orderItems = [];
+            }
+        }
+    }
+
+    if (!Array.isArray(orderItems)) {
+        orderItems = [];
+    }
+
+    return orderItems.map(function(item) {
+
+        const food = getFoodDetails(item.name);
+
+        const foodName = item.name || "Food";
+
+        const description =
+            food && food.description
+            ? food.description
+            : "Delicious food from FoodHub";
+
+        const image =
+            food && food.image
+            ? food.image
+            : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80";
+
+        const price =
+            Number(item.price || (food && food.price) || 0);
+
+        const quantity =
+            Number(item.quantity || 1);
+
+        return `
+        <div class="order-food-item">
+
+            <img
+                src="${escapeHtml(image)}"
+                alt="${escapeHtml(foodName)}"
+                class="order-food-image"
+                onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=500&q=80';"
+            >
+
+            <div class="order-food-info">
+
+                <div class="order-food-name">
+                    ${escapeHtml(foodName)}
+                </div>
+
+                <div class="order-food-description">
+                    ${escapeHtml(description)}
+                </div>
+
+                <div class="order-food-price">
+                    ₹${price.toFixed(2)} × ${quantity}
+                </div>
+
+            </div>
+
+        </div>
+        `;
+
+    }).join("");
+
+})()
+}
+
+</div>
 </div>
 
 <div>
@@ -3636,6 +3771,50 @@ return items;
 
 return String(items);
 
+}
+
+
+/* =========================================================
+ORDER ITEM UI
+========================================================= */
+
+async function ensureFoodsLoaded() {
+
+    if (Array.isArray(foods) && foods.length > 0) {
+        return;
+    }
+
+    try {
+
+        const result = await api("/foods");
+
+        if (isSuccess(result) && Array.isArray(result.data.foods)) {
+            foods = result.data.foods;
+        }
+
+    } catch (error) {
+
+        console.error("FOODS LOAD ERROR:", error);
+
+    }
+}
+
+
+function getFoodDetails(foodName) {
+
+    const name = String(foodName || "").trim().toLowerCase();
+
+    if (!name || !Array.isArray(foods)) {
+        return null;
+    }
+
+    return foods.find(function(food) {
+
+        return String(food.name || "")
+            .trim()
+            .toLowerCase() === name;
+
+    }) || null;
 }
 
 
