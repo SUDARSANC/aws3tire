@@ -1997,6 +1997,8 @@ function renderUsers(target,limit){
 
 async function loadOrders(){
 
+    await loadFoods();
+
     const data = await api("/admin/orders");
 
     orders = data.orders || [];
